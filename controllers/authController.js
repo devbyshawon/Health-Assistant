@@ -48,9 +48,19 @@ const register = async (req, res) => {
 
         await sendEmail({
             to: newUser.email,
-            subject: 'Your OTP Code - Health Assistant',
-            text: `Your OTP is: ${otp}. It expires in 5 minutes.`,
-            html: `<h3>Welcome to Health Assistant</h3><p>Your OTP is: <b>${otp}</b>. It expires in 5 minutes.</p>`
+            subject: 'Verify Your Email - Health Assistant',
+            text: `Your email verification OTP is: ${otp}. It expires in 5 minutes.`,
+            html: `
+                <h3>Hello ${newUser.name},</h3>
+
+                <p>Welcome to Health Assistant! Use the following OTP to verify your email address and complete your account registration.</p>
+
+                <h2>${otp}</h2>
+
+                <p>This OTP is valid for <strong>5 minutes</strong>.</p>
+
+                <p>If you didn't create a Health Assistant account, please ignore this email.</p>
+            `
         });
 
         res.status(201).json({
@@ -108,14 +118,33 @@ const verifyOtp = async (req, res) => {
                 to: user.email,
                 subject: 'Registration Successful - Health Assistant',
                 text: `Welcome ${user.name}! Your registration is complete.`,
-                html: `<p>Welcome <strong>${user.name}</strong>! Your registration is now complete.</p>`
+                html: `
+                    <h3>Hello ${user.name},</h3>
+
+                    <p>Congratulations! Your email has been successfully verified and your Health Assistant account is now active.</p>
+
+                    <p>You can now log in and start using all the available features.</p>
+
+                    <p>Thank you for choosing Health Assistant!</p>
+                `
             });
+
         } else if (role === 'doctor') {
             await sendEmail({
                 to: user.email,
-                subject: 'Registration Pending - Health Assistant',
+                subject: 'Registration Pending Approval - Health Assistant',
                 text: `Welcome ${user.name}! Your account is pending admin verification.`,
-                html: `<p>Welcome <strong>${user.name}</strong>! Your account is pending admin verification. We will notify you once reviewed.</p>`
+                html: `
+                    <h3>Hello Dr. ${user.name},</h3>
+
+                    <p>Your email has been successfully verified and your Health Assistant account has been created.</p>
+
+                    <p>Your registration is currently pending administrator approval before you can access the platform as a doctor.</p>
+
+                    <p>We'll notify you by email once your account has been reviewed and approved.</p>
+
+                    <p>Thank you for your patience.</p>
+                `
             });
         }
 
@@ -154,9 +183,19 @@ const resendOtp = async (req, res) => {
 
         await sendEmail({
             to: user.email,
-            subject: 'Your OTP Code - Health Assistant',
-            text: `Your OTP is: ${otp}. It expires in 5 minutes.`,
-            html: `<h3>Welcome to Health Assistant</h3><p>Your OTP is: <b>${otp}</b>. It expires in 5 minutes.</p>`
+            subject: 'Resend OTP - Health Assistant',
+            text: `Your new OTP is: ${otp}. It expires in 5 minutes.`,
+            html: `
+                <h3>Hello ${user.name},</h3>
+
+                <p>As requested, we've generated a new OTP for your Health Assistant account verification.</p>
+
+                <h2>${otp}</h2>
+
+                <p>This OTP is valid for <strong>5 minutes</strong>.</p>
+
+                <p>If you didn't request a new OTP, please ignore this email.</p>
+            `
         });
 
         res.status(200).json({ message: 'OTP resent successfully' });
@@ -202,9 +241,19 @@ const login = async (req, res) => {
             await user.save();
             await sendEmail({
                 to: user.email,
-                subject: 'Your OTP Code - Health Assistant',
-                text: `Your OTP is: ${otp}. It expires in 10 minutes.`,
-                html: `<h3>Welcome to Health Assistant</h3><p>Your OTP is: <b>${otp}</b>. It expires in 10 minutes.</p>`
+                subject: 'Login Verification Code - Health Assistant',
+                text: `Your login verification OTP is: ${otp}. It expires in 10 minutes.`,
+                html: `
+                    <h3>Hello ${user.name},</h3>
+
+                    <p>Use the following OTP to complete your login to your Health Assistant account.</p>
+
+                    <h2>${otp}</h2>
+
+                    <p>This OTP is valid for <strong>10 minutes</strong>.</p>
+
+                    <p>If you didn't attempt to log in to your account, please ignore this email and consider changing your password if you suspect unauthorized access.</p>
+                `
             });
 
             const tempToken = jwt.sign({ id: user._id, role: user.role, isTwoFAVerified: false }, process.env.JWT_SECRET, { expiresIn: '10m' });
