@@ -28,4 +28,35 @@ const uploadProfilePic = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
 });
 
-module.exports = { uploadProfilePic };
+const doctorStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = 'uploads/docs/';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const uniqueName = `doc-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+        cb(null, uniqueName);
+    }
+});
+
+const doctorFilter = (req, file, cb) => {
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (allowed.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only PDF, JPEG, PNG files allowed'), false);
+    }
+};
+
+const uploadDoctorDocs = multer({
+    storage: doctorStorage,
+    fileFilter: doctorFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+}).fields([
+    { name: 'idCard', maxCount: 1 },
+    { name: 'certificate', maxCount: 1 }
+]);
+
+module.exports = { uploadProfilePic, uploadDoctorDocs };

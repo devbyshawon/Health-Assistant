@@ -3,6 +3,9 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const authRouter = require('./routes/authRoutes');
+const doctorRouter = require('./routes/doctorRoutes');
+const adminRouter = require('./routes/adminRoutes');
+const publicRouter = require('./routes/publicRoutes');
 
 dotenv.config();
 const app = express();
@@ -12,6 +15,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
+app.use('/api/doctor', doctorRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/public', publicRouter);
 
 app.get('/', (req, res) => {
     res.send('Health Assistant API is running')

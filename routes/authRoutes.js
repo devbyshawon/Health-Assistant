@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const { register, verifyOtp, resendOtp, login, verify2Fa, 
     logout, changePassword, deleteAccount } = require('../controllers/authController');
 const { protect } = require('../middlewares/authMiddleware');
@@ -8,8 +9,6 @@ const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter } = require(
 const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
 const { uploadProfilePic } = require('../middlewares/multer');
-
-const router = express.Router();
 
 // Auth routes (with rate limiters)
 router.post('/register', registerLimiter, register);
