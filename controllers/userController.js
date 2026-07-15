@@ -85,7 +85,7 @@ const updateProfile = async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
             { $set: updates },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         ).select('-password -otp -twoFAToken -twoFATokenExpires');
 
         return res.status(200).json({ message: 'Profile updated', user: updatedUser });
@@ -108,7 +108,7 @@ const uploadProfilePicController = async (req, res) => {
         const user = await User.findByIdAndUpdate(
             req.user._id,
             { profilePic: filePath },
-            { new: true }
+            { returnDocument: 'after' }
         ).select('-password');
 
         return res.status(200).json({ message: 'Profile picture uploaded', user });
@@ -121,14 +121,36 @@ const uploadProfilePicController = async (req, res) => {
 
 const getHealthSummary = async (req, res) => {
     try {
-        // HealthLog model will be built on Day 5
-        // Placeholder response until then
+        const logs = await HealthLog.find({ userId: req.user._id }).sort({ date: -1 });
+        if (!logs.length) {
+            return res.status(200).json({ success: true, summary: { latestLog: null, totalLogs: 0 } });
+        }
+
+        const latestLog = logs[0];
+
+        const avgWeight = logs.reduce((sum, l) => 
+            sum + (l.weight || 0), 0) / logs.length;
+
+        const avgHR = logs.reduce((sum, l) => 
+            sum + (l.vitals?.heartRate || 0), 0) / logs.length;
+
+        const avgTemp = logs.reduce((sum, l) => 
+            sum + (l.vitals?.temperature || 0), 0) / logs.length;
+
+        const bpValues = logs
+            .filter(l => l.vitals?.bloodPressure)
+            .map(l => parseInt(l.vitals.bloodPressure.split('/')[0]));
+
+        const avgBP = bpValues.length 
+            ? bpValues.reduce((sum, val) => sum + val, 0) / bpValues.length 
+            : null;
+
         return res.status(200).json({
             success: true,
             summary: {
-                latestLog: null,
-                averages: { weight: null, heartRate: null, temperature: null, bloodPressure: null },
-                totalLogs: 0
+                latestLog,
+                averages: { weight: avgWeight, heartRate: avgHR, temperature: avgTemp, bloodPressure: avgBP },
+                totalLogs: logs.length
             }
         });
     

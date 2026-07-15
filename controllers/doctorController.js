@@ -95,7 +95,7 @@ const updateDoctorProfile = async(req, res) => {
             }
         }
 
-        const updatedDoctor = await DoctorProfile.findOneAndUpdate({ userId: req.user._id }, { $set: updates }, { new: true, runValidators: true });
+        const updatedDoctor = await DoctorProfile.findOneAndUpdate({ userId: req.user._id }, { $set: updates }, { returnDocument: 'after', runValidators: true });
         if (!updatedDoctor) {
             return res.status(404).json({ message: 'Doctor profile not found' });
         }

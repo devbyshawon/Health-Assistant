@@ -2,9 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { register, verifyOtp, resendOtp, login, verify2Fa, 
     logout, changePassword, deleteAccount } = require('../controllers/authController');
-const { protect } = require('../middlewares/authMiddleware');
+const { protect, restrictTo } = require('../middlewares/authMiddleware');
 const { toggleTwoFA, getUserProfile, updateProfile, 
     uploadProfilePicController, getHealthSummary } = require('../controllers/userController');
+const { createHealthLog, getHealthLogs, updateHealthLog, deleteHealthLog } = require('../controllers/healthLogController');
+const { createReminder, getReminders, updateReminder, deleteReminder } = require('../controllers/reminderController');
+const { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments } = require('../controllers/appointmentController');
+const { getNotifications, markAsRead } = require('../controllers/notificationController');
 const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter } = require('../middlewares/rateLimiter');
 const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
@@ -27,5 +31,27 @@ router.post('/upload-profile-pic', protect, uploadProfilePic.single('profilePic'
 router.patch('/toggle-2fa', protect, toggleTwoFA);
 router.get('/health-summary', protect, getHealthSummary);
 router.get('/me', protect, (req, res) => {res.status(200).json({ user: req.user });});
+
+// Health Logs
+router.post('/healthlogs', protect, createHealthLog);
+router.get('/healthlogs', protect, getHealthLogs);
+router.patch('/healthlogs/:id', protect, updateHealthLog);
+router.delete('/healthlogs/:id', protect, deleteHealthLog);
+
+// Reminders
+router.post('/reminders', protect, createReminder);
+router.get('/reminders', protect, getReminders);
+router.patch('/reminders/:id', protect, updateReminder);
+router.delete('/reminders/:id', protect, deleteReminder);
+
+// Appointments
+router.post('/appointments', protect, restrictTo('user'), bookAppointment);
+router.patch('/appointments/:id/reschedule', protect, rescheduleAppointment);
+router.patch('/appointments/:id/cancel', protect, cancelAppointment);
+router.get('/appointments/my', protect, restrictTo('user'), getMyAppointments);
+
+// Notifications
+router.get('/notifications', protect, getNotifications);
+router.patch('/notifications/:id/read', protect, markAsRead);
 
 module.exports = router;
