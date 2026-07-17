@@ -59,4 +59,24 @@ const uploadDoctorDocs = multer({
     { name: 'certificate', maxCount: 1 }
 ]);
 
-module.exports = { uploadProfilePic, uploadDoctorDocs };
+const prescriptionStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = 'uploads/prescriptions/';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const uniqueName = `presc-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+        cb(null, uniqueName);
+    }
+});
+
+const uploadPrescription = multer({
+    storage: prescriptionStorage,
+    fileFilter: doctorFilter,  // reuse of doctorFilter
+    limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+
+module.exports = { uploadProfilePic, uploadDoctorDocs, uploadPrescription };

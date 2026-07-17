@@ -9,10 +9,12 @@ const { createHealthLog, getHealthLogs, updateHealthLog, deleteHealthLog } = req
 const { createReminder, getReminders, updateReminder, deleteReminder } = require('../controllers/reminderController');
 const { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments } = require('../controllers/appointmentController');
 const { getNotifications, markAsRead } = require('../controllers/notificationController');
-const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter } = require('../middlewares/rateLimiter');
+const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter, aiLimiter } = require('../middlewares/rateLimiter');
 const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
-const { uploadProfilePic } = require('../middlewares/multer');
+const { uploadProfilePic, uploadPrescription } = require('../middlewares/multer');
+const { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep } = require('../controllers/aiController');
+const { uploadPrescriptions, getPrescriptions, extractPrescriptionText } = require('../controllers/prescriptionController');
 
 // Auth routes (with rate limiters)
 router.post('/register', registerLimiter, register);
@@ -53,5 +55,16 @@ router.get('/appointments/my', protect, restrictTo('user'), getMyAppointments);
 // Notifications
 router.get('/notifications', protect, getNotifications);
 router.patch('/notifications/:id/read', protect, markAsRead);
+
+// Prescriptions
+router.post('/prescriptions', protect, uploadPrescription.single('prescription'), uploadPrescriptions);
+router.get('/prescriptions', protect, getPrescriptions);
+router.post('/prescriptions/ocr', protect, uploadPrescription.single('prescription'), extractPrescriptionText);
+
+// AI features (with rate limiter)
+router.post('/ai/diagnose', protect, aiLimiter, diagnoseSymptoms);
+router.post('/ai/chat', protect, aiLimiter, chatSymptoms);
+router.post('/ai/simplify', protect, aiLimiter, simplifyMedicalTerm);
+router.get('/ai/visit-prep/:condition', protect, aiLimiter, getVisitPrep);
 
 module.exports = router;

@@ -1,13 +1,14 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
 const authRouter = require('./routes/authRoutes');
 const doctorRouter = require('./routes/doctorRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const publicRouter = require('./routes/publicRoutes');
 
-dotenv.config();
 const app = express();
 
 app.use(cors());
