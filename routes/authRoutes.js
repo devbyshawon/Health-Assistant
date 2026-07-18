@@ -1,18 +1,20 @@
 const express = require('express');
 const router = express.Router();
+
+const { protect, restrictTo } = require('../middlewares/authMiddleware');
+const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter, aiLimiter } = require('../middlewares/rateLimiter');
+const { uploadProfilePic, uploadPrescription } = require('../middlewares/multer');
+const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
+const validationHandler = require('../middlewares/validationHandler');
+
 const { register, verifyOtp, resendOtp, login, verify2Fa, 
     logout, changePassword, deleteAccount } = require('../controllers/authController');
-const { protect, restrictTo } = require('../middlewares/authMiddleware');
 const { toggleTwoFA, getUserProfile, updateProfile, 
     uploadProfilePicController, getHealthSummary } = require('../controllers/userController');
 const { createHealthLog, getHealthLogs, updateHealthLog, deleteHealthLog } = require('../controllers/healthLogController');
 const { createReminder, getReminders, updateReminder, deleteReminder } = require('../controllers/reminderController');
 const { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments } = require('../controllers/appointmentController');
 const { getNotifications, markAsRead } = require('../controllers/notificationController');
-const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter, aiLimiter } = require('../middlewares/rateLimiter');
-const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
-const validationHandler = require('../middlewares/validationHandler');
-const { uploadProfilePic, uploadPrescription } = require('../middlewares/multer');
 const { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep } = require('../controllers/aiController');
 const { uploadPrescriptions, getPrescriptions, extractPrescriptionText } = require('../controllers/prescriptionController');
 
@@ -32,7 +34,7 @@ router.patch('/update-profile', protect, sanitizeProfileUpdate, validationHandle
 router.post('/upload-profile-pic', protect, uploadProfilePic.single('profilePic'), uploadProfilePicController);
 router.patch('/toggle-2fa', protect, toggleTwoFA);
 router.get('/health-summary', protect, getHealthSummary);
-router.get('/me', protect, (req, res) => {res.status(200).json({ user: req.user });});
+router.get('/me', protect, (req, res) => {res.status(200).json({ user: req.user });}); //If no need in frontend then must delete it later in final bug fixing
 
 // Health Logs
 router.post('/healthlogs', protect, createHealthLog);

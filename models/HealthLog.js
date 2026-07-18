@@ -12,6 +12,7 @@ const HealthLogSchema = new mongoose.Schema({
     notes: {type: String},
     height: {type: Number},
     weight: {type: Number},
+    
     vitals: {
         temperature: {type: Number, default: null},
         heartRate: {type: Number, default: null},

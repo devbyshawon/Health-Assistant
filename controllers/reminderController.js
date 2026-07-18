@@ -15,9 +15,7 @@ const createReminder = async (req, res) => {
             repeat,
             notes
         });
-
         return res.status(201).json({ success: true, message: 'Reminder created', data: reminder });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -27,9 +25,7 @@ const createReminder = async (req, res) => {
 const getReminders = async (req, res) => {
     try {
         const reminders = await Reminder.find({ userId: req.user._id }).sort({ time: 1 });
-        
         return res.status(200).json({ success: true, data: reminders });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -46,9 +42,7 @@ const updateReminder = async (req, res) => {
         if (!updated) {
             return res.status(404).json({ message: 'Reminder not found' });
         }
-
         return res.status(200).json({ success: true, message: 'Reminder updated', data: updated });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -61,9 +55,7 @@ const deleteReminder = async (req, res) => {
         if (!deleted) {
             return res.status(404).json({ message: 'Reminder not found' });
         }
-        
         return res.status(200).json({ success: true, message: 'Reminder deleted' });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });

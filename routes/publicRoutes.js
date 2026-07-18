@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const { getPublicDoctors, searchDoctors, getNearbyDoctors } = require("../controllers/doctorController");
 
 // Public routes

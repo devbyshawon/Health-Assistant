@@ -3,7 +3,6 @@ const HealthLog = require("../models/HealthLog");
 const createHealthLog = async (req, res) => {
     try {
         const { symptoms, mood, notes, height, weight, vitals, temperature, heartRate, bloodPressure } = req.body;
-
         const healthLog = await HealthLog.create({
             userId: req.user._id,
             symptoms: symptoms || [],
@@ -17,9 +16,7 @@ const createHealthLog = async (req, res) => {
                 bloodPressure: vitals?.bloodPressure ?? bloodPressure ?? null,
             }
         });
-
         return res.status(201).json({ success: true, data: healthLog });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -29,7 +26,6 @@ const createHealthLog = async (req, res) => {
 const getHealthLogs = async (req, res) => {
     try {
         const user = req.user.role;
-
         let logs;
         if (user === 'user') {
             logs = await HealthLog.find({ userId: req.user._id }).sort({ date: -1 });
@@ -38,9 +34,7 @@ const getHealthLogs = async (req, res) => {
         } else {
             return res.status(403).json({ message: 'Access denied' });
         }
-        
         return res.status(200).json({ success: true, data: logs });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -50,7 +44,6 @@ const getHealthLogs = async (req, res) => {
 const updateHealthLog = async (req, res) => {
     try {
         const { symptoms, mood, notes, height, weight, vitals, temperature, heartRate, bloodPressure } = req.body;
-        
         const healthLog = await HealthLog.findOneAndUpdate(
             { _id: req.params.id, userId: req.user._id }, 
             {
@@ -69,13 +62,10 @@ const updateHealthLog = async (req, res) => {
             },
             { returnDocument: 'after', runValidators: true }
         );
-            
         if (!healthLog) {
             return res.status(404).json({ message: 'Health log not found '});
         }
-        
         return res.status(200).json(healthLog);
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -88,9 +78,7 @@ const deleteHealthLog = async (req, res) => {
         if (!healthLog) {
             return res.status(404).json({ message: 'Health log not found' });
         }
-
         return res.status(200).json({ message: 'Health log deleted' });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });

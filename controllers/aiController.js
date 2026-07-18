@@ -1,5 +1,5 @@
-const callGroq = require('../utils/llm');
 const AIInteractionLog = require('../models/AIInteractionLog');
+const callGroq = require('../utils/llm');
 
 const diagnoseSymptoms = async (req, res) => {
     try {
@@ -21,10 +21,8 @@ const diagnoseSymptoms = async (req, res) => {
             input: symptoms, 
             output: diagnosis, 
             type: 'diagnosis' 
-        });
-        
+        });        
         return res.status(200).json({ success: true, data: diagnosis });
-
     } catch (error) {
         console.error(error);
         return res.status(503).json({ message: 'AI service temporarily unavailable' });
@@ -43,17 +41,14 @@ const chatSymptoms = async (req, res) => {
         Respond naturally, ask follow-up questions if needed, and give helpful medical guidance.
         Always remind the patient to consult a real doctor for serious concerns.`;
 
-        const reply = await callGroq(prompt)
-
+        const reply = await callGroq(prompt);
         await AIInteractionLog.create({
             userId: req.user._id, 
             input: message, 
             output: reply, 
             type: 'chat'  
         });
-        
         return res.status(200).json({ success: true, data: reply });
-
     } catch (error) {
         console.error(error);
         return res.status(503).json({ message: 'AI service temporarily unavailable' });
@@ -72,16 +67,13 @@ const simplifyMedicalTerm = async (req, res) => {
         Keep it short (2-3 sentences), avoid jargon, and make it easy for a non-medical person to understand.`;
 
         const explanation = await callGroq(prompt);
-
         await AIInteractionLog.create({
             userId: req.user._id,
             input: term, 
             output: explanation, 
             type: 'simplifier'  
         });
-        
         return res.status(200).json({ success: true, data: explanation });
-
     } catch (error) {
         console.error(error);
         return res.status(503).json({ message: 'AI service temporarily unavailable' });
@@ -105,16 +97,13 @@ const getVisitPrep = async (req, res) => {
         Format as a clear, easy-to-follow checklist.`;
 
         const checklist = await callGroq(prompt);
-
         await AIInteractionLog.create({
             userId: req.user._id,
             input: condition, 
             output: checklist, 
             type: 'prep'  
         });
-        
         return res.status(200).json({ success: true, data: checklist });
-
     } catch (error) {
         console.error(error);
         return res.status(503).json({ message: 'AI service temporarily unavailable' });

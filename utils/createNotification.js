@@ -5,7 +5,6 @@ const createNotification = async ({ recipientId, title, message, type = 'system'
         const notification = new Notification({ recipientId, title, message, type });
         await notification.save();
         return notification;
-
     } catch (error) {
         console.error('Notification creation error:', error);
     }

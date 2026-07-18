@@ -22,7 +22,6 @@ const uploadDocument = async(req, res) => {
                 clinicLocation: { type: 'Point', coordinates: [0, 0] }
             });
         }
-
         files.forEach(file => {
             profile.documents.push({
                 filename: file.filename,
@@ -32,15 +31,12 @@ const uploadDocument = async(req, res) => {
         });
 
         await profile.save();
-
         await User.findByIdAndUpdate(userId, {
             verificationStatus: 'Pending',
             docsUploaded: true,
             doctorProfile: profile._id
         });
-
         return res.status(200).json({ message: 'Documents uploaded successfully' });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -53,9 +49,7 @@ const getDoctorProfile = async(req, res) => {
         if (!doctor) {
             return res.status(404).json({ message: 'Doctor not found' });
         }
-
         return res.status(200).json({ doctor });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -99,9 +93,7 @@ const updateDoctorProfile = async(req, res) => {
         if (!updatedDoctor) {
             return res.status(404).json({ message: 'Doctor profile not found' });
         }
-
-        return res.status(200).json({ message: 'Profile updated', doctor: updatedDoctor })
-
+        return res.status(200).json({ message: 'Profile updated', doctor: updatedDoctor });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -111,7 +103,6 @@ const updateDoctorProfile = async(req, res) => {
 const getPublicDoctors = async(req, res) => {
     try {
         const userQuery = { role: 'doctor', verificationStatus: 'Verified', isBlocked: false };
-
         if (req.query.name) {
             userQuery.name = { $regex: req.query.name, $options: 'i' };
         }
@@ -119,11 +110,8 @@ const getPublicDoctors = async(req, res) => {
         let doctors = await User.find(userQuery)
             .select('name username profilePic doctorProfile')
             .populate('doctorProfile');
-        
         doctors = doctors.filter(doc => doc.doctorProfile);
-        
         return res.status(200).json({ results: doctors.length, doctors });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -141,17 +129,13 @@ const searchDoctors = async(req, res) => {
         let doctors = await User.find(userQuery)
             .select('name username profilePic doctorProfile')
             .populate('doctorProfile');
-        
         doctors = doctors.filter(doc => doc.doctorProfile);
-
         if (specialty) {
             doctors = doctors.filter(doc =>
                 doc.doctorProfile?.specialty?.toLowerCase().includes(specialty.toLowerCase())
             );
         }
-
         return res.status(200).json({ results: doctors.length, doctors });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -165,8 +149,7 @@ const getNearbyDoctors = async(req, res) => {
             return res.status(400).json({ message: 'Latitude and Longitude are required.' });
         }
 
-        const distanceInMeters = parseFloat(radius) * 1000
-        
+        const distanceInMeters = parseFloat(radius) * 1000;        
         const profiles = await DoctorProfile.find({
             clinicLocation: {
                 $near: {
@@ -184,9 +167,7 @@ const getNearbyDoctors = async(req, res) => {
         });
 
         const doctors = profiles.filter(doc => doc.userId);
-
         res.status(200).json({ results: doctors.length, doctors: doctors });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });

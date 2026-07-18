@@ -1,6 +1,6 @@
-const createNotification = require('../utils/createNotification');
 const User = require('../models/User');
 const Appointment = require('../models/Appointment');
+const createNotification = require('../utils/createNotification');
 
 const bookAppointment = async (req, res) => {
     try {
@@ -28,16 +28,13 @@ const bookAppointment = async (req, res) => {
             message: `Your appointment is scheduled for ${date}`,
             type: 'appointment'
         });
-
         await createNotification({
             recipientId: doctorId,
             title: 'New Appointment Request',
             message: `You have a new appointment request for ${date}`,
             type: 'appointment'
         });
-
         return res.status(201).json({ success: true, message: 'Appointment booked', data: appointment });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -48,7 +45,6 @@ const rescheduleAppointment = async (req, res) => {
     try {
         const { id } = req.params;
         const { date } = req.body;
-
         let appointment;
         if (req.user.role === 'user') {
             appointment = await Appointment.findOne({ _id: id, patientId: req.user._id });
@@ -58,27 +54,23 @@ const rescheduleAppointment = async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found'});
         }
-
         appointment.date = date; 
         appointment.status = 'Pending';
-        await appointment.save();
 
+        await appointment.save();
         await createNotification({
             recipientId: appointment.patientId,
             title: 'Appointment Rescheduled',
             message: `Your appointment has been rescheduled to ${date}`,
             type: 'appointment'
         });
-        
         await createNotification({
             recipientId: appointment.doctorId,
             title: 'Appointment Rescheduled',
             message: `An appointment has been rescheduled to ${date}`,
             type: 'appointment'
         });
-
         return res.status(200).json(appointment);
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -97,26 +89,22 @@ const cancelAppointment = async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found'});
         }
+        appointment.status = 'Cancelled';
 
-        appointment.status = 'Cancelled'
         await appointment.save();
-
         await createNotification({
             recipientId: appointment.patientId,
             title: 'Appointment Cancelled',
             message: 'Your appointment has been cancelled.',
             type: 'appointment'
         });
-
         await createNotification({
             recipientId: appointment.doctorId,
             title: 'Appointment Cancelled',
             message: 'An appointment with your patient has been cancelled.',
             type: 'appointment'
         });
-
         return res.status(200).json({ message: 'Appointment cancelled' });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -125,10 +113,8 @@ const cancelAppointment = async (req, res) => {
 
 const getMyAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.find({ patientId: req.user._id }).populate('doctorId', 'name email').sort({ date: -1 }); 
-
+        const appointments = await Appointment.find({ patientId: req.user._id }).populate('doctorId', 'name email').sort({ date: -1 });
         return res.status(200).json(appointments);
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -138,9 +124,7 @@ const getMyAppointments = async (req, res) => {
 const getDoctorAppointments = async (req, res) => {
     try {
         const appointments = await Appointment.find({ doctorId: req.user._id }).populate('patientId', 'name email').sort({ date: 1 });
-
         return res.status(200).json(appointments);
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -154,23 +138,19 @@ const markComplete = async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found'});
         }
-
         if (appointment.status === 'Completed') {
             return res.status(400).json({ message: 'Already completed' });
         }
+        appointment.status = 'Completed';
 
-        appointment.status = 'Completed'
         await appointment.save();
-
         await createNotification({
             recipientId: appointment.patientId,
             title: 'Appointment Completed',
             message: 'Your appointment has been marked as completed.',
             type: 'appointment'
         });
-
         return res.status(200).json({ message: 'Appointment marked as completed', appointment });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });

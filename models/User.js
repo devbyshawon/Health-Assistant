@@ -73,7 +73,7 @@ UserSchema.methods.toJSON = function () {
 };
 
 UserSchema.virtual('completion').get(function() {
-    const fields = ['name', 'username', 'email', 'age', 'gender', 'contact', 'birthday', 'address', 'bloodGroup', 'intro', 'profilePic']
+    const fields = ['name', 'username', 'email', 'age', 'gender', 'contact', 'birthday', 'address', 'bloodGroup', 'intro', 'profilePic'];
     const filled = fields.filter(field => this[field] && this[field] !== '');
     const percentage = Math.round((filled.length / fields.length) * 100);
     return percentage;

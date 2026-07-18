@@ -13,7 +13,6 @@ const sendEmail = async ({ to, subject, text, html }) => {
                 pass: process.env.EMAIL_PASS 
             } 
         });
-
         const mailOptions = {
             from: `'Health Assistant' <${process.env.EMAIL_USER}>`,
             to, 
@@ -22,7 +21,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
             html 
         };
 
-        await transporter.sendMail(mailOptions)
+        await transporter.sendMail(mailOptions);
         console.log('Email sent successfully!');
     } catch (error) {
         console.error('Email failed to send:', error);

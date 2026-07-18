@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+
 const { protect, restrictTo } = require('../middlewares/authMiddleware');
+const { uploadDoctorDocs } = require("../middlewares/multer");
+
 const { uploadDocument, getDoctorProfile, updateDoctorProfile } = require("../controllers/doctorController");
 const { getDoctorAppointments, markComplete } = require('../controllers/appointmentController');
-const { uploadDoctorDocs } = require("../middlewares/multer");
 
 // DoctorProfile routes
 router.post('/upload-docs', protect, restrictTo('doctor'), uploadDoctorDocs, uploadDocument);

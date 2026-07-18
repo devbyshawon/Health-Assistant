@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
+
 const { protect, restrictTo } = require('../middlewares/authMiddleware');
+
 const { getPendingDoctors, verifyDoctor, getAllUsers, getAllDoctors,
     blockUser, unblockUser, deleteUser, getAuditLogs,
     getSystemSettings, updateSystemSettings, addHospital, 
     sendNotification } = require('../controllers/adminController');
 
-router.use(protect, restrictTo('admin')); // all routes below require admin
+// All routes below require admin
+router.use(protect, restrictTo('admin'));
 
 // Doctor management
 router.get('/doctors/pending', getPendingDoctors);
