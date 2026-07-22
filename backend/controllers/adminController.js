@@ -293,5 +293,31 @@ const sendNotification = async (req, res) => {
     }
 };
 
+const getPublicStats = async (req, res) => {
+    try {
+        const doctorCount = await User.countDocuments({ role: 'doctor', verificationStatus: 'Verified' });
+        const patientCount = await User.countDocuments({ role: 'user' });
+        const appointmentCount = await Appointment.countDocuments();
+
+        const verifiedDoctorIds = await User.find(
+            { role: 'doctor', verificationStatus: 'Verified' }
+        ).distinct('_id');
+
+        const specialties = await DoctorProfile.distinct('specialty', {
+            userId: { $in: verifiedDoctorIds },
+            specialty: { $nin: [null, ''] }
+        });
+        
+        return res.status(200).json({
+            doctors: doctorCount,
+            patients: patientCount,
+            appointments: appointmentCount,
+            specialtyCount: specialties.length
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = { verifyDoctor, getAllUsers, getAllDoctors, getPendingDoctors, blockUser, unblockUser, 
-    deleteUser, getAuditLogs, getSystemSettings, updateSystemSettings, addHospital, sendNotification };
+    deleteUser, getAuditLogs, getSystemSettings, updateSystemSettings, addHospital, sendNotification, getPublicStats };

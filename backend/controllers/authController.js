@@ -218,6 +218,8 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        const userData = { id: user._id, name: user.name, email: user.email, role: user.role };
+
         if (user.isTwoFAEnabled) {
             const otp = generateOTP();
             user.twoFAToken = otp;
@@ -249,11 +251,12 @@ const login = async (req, res) => {
                 return res.status(200).json({
                     message: 'Pending verification', 
                     redirect: '/doctor/upload-docs', 
-                    token
+                    token,
+                    user: userData
                 });
             }
         }
-        res.status(200).json({ message: 'Login successful', token, user: { name: user.name, email: user.email, role: user.role } });
+        res.status(200).json({ message: 'Login successful', token, user: userData });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
@@ -287,7 +290,11 @@ const verify2Fa = async (req, res) => {
         },
         process.env.JWT_SECRET,
         { expiresIn: '1d' });
-        return res.status(200).json({ message: '2FA verified successfully', token });
+        return res.status(200).json({ 
+            message: '2FA verified successfully', 
+            token, 
+            user: { _id: user._id, name: user.name, email: user.email, role: user.role } 
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
