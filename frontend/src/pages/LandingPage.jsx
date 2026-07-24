@@ -24,7 +24,7 @@ const LandingPage = () => {
     return (
         <div>
             {/* HERO */}
-            <section className='bg-gradient-to-br from-teal-600 to-teal-800 text-white'>
+            <section className='bg-linear-to-br from-teal-600 to-teal-800 text-white'>
                 <div className='max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center gap-12'>
                     
                     {/* Left — text */}
@@ -40,16 +40,18 @@ const LandingPage = () => {
                         <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start'>
                             <Link
                                 to="/register"
-                                className='bg-white text-teal-700 px-6 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors flex items-center justify-center gap-2'
+                                className='bg-white text-teal-700 px-6 py-3 rounded-lg font-semibold hover:bg-teal-100 transition-colors flex items-center justify-center gap-2'
                             >
                                 Get Started Free <ArrowRight className='w-4 h-4' />
                             </Link>
+
                             <Link
                                 to="/doctors"
-                                className='border border-teal-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors text-center'
+                                className='border bg-teal text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors text-center'
                             >
                                 Find a Doctor
                             </Link>
+                            
                         </div>
                     </div>
 
@@ -86,7 +88,7 @@ const LandingPage = () => {
             <section id='features' className='bg-gray-50 py-20'>
                 <div className='max-w-7xl mx-auto px-6'>
                     <div className='text-center mb-12'>
-                        <h2 className='text-3xl font-bold text-teal-600 mb-4'>
+                        <h2 className='text-3xl font-bold text-teal-900 mb-4'>
                             Everything You Need for Better Health
                         </h2>
                         <p className='text-gray-500 max-w-xl mx-auto'>
@@ -211,14 +213,14 @@ const LandingPage = () => {
                                     'Receive appointment notifications instantly',
                                 ].map(item => (
                                     <li key={item} className='flex items-center gap-3 text-teal-100 text-sm'>
-                                        <CheckCircle className='w-4 h-4 text-teal-300 flex-shrink-0' />
+                                        <CheckCircle className='w-4 h-4 text-teal-300 shrink-0' />
                                         {item}
                                     </li>
                                 ))}
                             </ul>
                             <Link
                                 to="/register"
-                                className='inline-flex items-center gap-2 mt-8 bg-white text-teal-700 px-6 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-colors'
+                                className='inline-flex items-center gap-2 mt-8 bg-white text-teal-700 px-6 py-3 rounded-lg font-semibold hover:bg-teal-100 transition-colors'
                             >
                                 Register as Doctor <ArrowRight className='w-4 h-4' />
                             </Link>
@@ -259,7 +261,7 @@ const LandingPage = () => {
                         </Link>
                         <Link
                             to="/doctors"
-                            className='border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center'
+                            className='border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors text-center'
                         >
                             Browse Doctors
                         </Link>

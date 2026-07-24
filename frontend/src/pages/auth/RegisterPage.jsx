@@ -286,14 +286,6 @@ const RegisterPage = () => {
                                 {resendMessage && (
                                     <p className='text-gray-500 text-sm text-center mt-2'>{resendMessage}</p>
                                 )}
-
-                                <button
-                                    type='button'
-                                    onClick={() => { setStep(1); setError(''); }}
-                                    className='w-full mt-3 text-sm text-teal-500 hover:text-teal-700 disabled:opacity-50'
-                                >
-                                    ← Back
-                                </button>
                             </form>                   
                         </div>
                     )}
