@@ -38,7 +38,7 @@ const uploadPrescriptions = async (req, res) => {
 const getPrescriptions = async (req, res) => {
     try {
         const prescription = await Prescription.find({ patientId: req.user._id }).sort({ createdAt: -1 });
-        return res.status(200).json({ success: true, data: prescription });
+        return res.status(200).json({ success: true, prescriptions: prescription });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });

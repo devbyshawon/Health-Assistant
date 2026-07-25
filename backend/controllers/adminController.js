@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Appointment = require('../models/Appointment');
 const DoctorProfile = require('../models/DoctorProfile');
 const AuditLog = require('../models/AuditLog');
 const Hospital = require('../models/Hospital');

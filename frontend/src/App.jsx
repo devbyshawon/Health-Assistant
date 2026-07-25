@@ -1,11 +1,16 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/shared/Navbar";
+import ProtectedRoute from "./components/shared/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import DoctorDirectory from "./pages/DoctorDirectory";
 import PatientDashboard from "./pages/patient/PatientDashboard";
+import HealthLogs from "./pages/patient/HealthLogsPage";
+import ReminderPage from "./pages/patient/RemindersPage";
+import AppointmentPage from "./pages/patient/AppointmentsPage";
+import BookAppointmentPage from "./pages/patient/BookAppointmentPage";
+import PrescriptionPage from "./pages/patient/PrescriptionsPage";
 
 
 const App = () => {
@@ -32,7 +37,11 @@ const App = () => {
                 {/* Patient routes */}
                 <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
                     <Route path="/dashboard" element={<PatientDashboard />} />
-                    <Route path="/appointments" element={<div className="p-6">Appointments — Coming Soon</div>} />
+                    <Route path="/healthlogs" element={<HealthLogs />} />
+                    <Route path="/reminders" element={<ReminderPage />} />
+                    <Route path="/appointments" element={<AppointmentPage />} />
+                    <Route path="/appointments/book" element={<BookAppointmentPage />} />
+                    <Route path="/prescriptions" element={<PrescriptionPage />} />
                     <Route path="/ai-chat" element={<div className="p-6">AI Chat — Coming Soon</div>} />
                 </Route>
 

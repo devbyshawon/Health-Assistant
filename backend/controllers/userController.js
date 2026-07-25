@@ -112,7 +112,14 @@ const getHealthSummary = async (req, res) => {
     try {
         const logs = await HealthLog.find({ userId: req.user._id }).sort({ date: -1 });
         if (!logs.length) {
-            return res.status(200).json({ success: true, summary: { latestLog: null, totalLogs: 0 } });
+            return res.status(200).json({
+                success: true,
+                summary: {
+                    latestLog: null,
+                    averages: { weight: null, heartRate: null, temperature: null, bloodPressure: null },
+                    totalLogs: 0
+                }
+            });
         }
 
         const latestLog = logs[0];
