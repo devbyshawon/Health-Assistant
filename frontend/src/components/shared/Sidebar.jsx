@@ -1,11 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { LayoutDashboard, Users, Stethoscope, Calendar, FileText, Pill, MessageSquare, 
-  Bell, Settings, Hospital, ClipboardList, ShieldCheck, Activity } from "lucide-react";
+  Bell, Settings, Hospital, ClipboardList, ShieldCheck, Activity, Home, LogIn, UserPlus } from "lucide-react";
 
 const Sidebar = () => {
   const { isAdmin, isDoctor, isPatient } = useAuth();
   const location = useLocation();
+
+  const guestLinks = [
+  { to: "/", icon: Home, label: "Home" },
+  { to: "/doctors", icon: Stethoscope, label: "Find Doctors" },
+  { to: "/login", icon: LogIn, label: "Login" },
+  { to: "/register", icon: UserPlus, label: "Register" },
+];
+
 
   const patientLinks = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -37,7 +45,7 @@ const Sidebar = () => {
     { to: "/admin/settings", icon: Settings, label: "Settings" },
   ];
 
-  const links = isAdmin ? adminLinks : isDoctor ? doctorLinks : patientLinks;
+  const links = isAdmin ? adminLinks : isDoctor ? doctorLinks : isPatient? patientLinks : guestLinks;
 
   return (
     <aside className="w-60 min-h-screen bg-white border-r border-gray-200 flex flex-col">
