@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import DashboardLayout from '../../components/DashboardLayout';
+import DashboardLayout from '../../components/shared/DashboardLayout';
 import StatCard from '../../components/StatCard';
 import QuickActionCard from '../../components/QuickActionCard';
 import { Calendar, Pill, Activity, Stethoscope, MessageSquare } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Calendar, Pill, Activity, Stethoscope, MessageSquare } from 'lucide-rea
 const PatientDashboard = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState({ upcomingAppointments: 0, activeReminders: 0, healthLogs: 0 });
-    const [loading, setLoading] = useState(true);
+    const [setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -33,7 +33,7 @@ const PatientDashboard = () => {
             }
         };
         fetchDashboardData();
-    }, []);
+    }, [setLoading]);
 
     return (
         <DashboardLayout>

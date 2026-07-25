@@ -12,9 +12,11 @@ const StatCard = ({ icon: Icon, label, value, color }) => {
                     <p className="text-sm text-gray-500">{label}</p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
                 </div>
-                <div className={`${colors[color]} p-3 rounded-lg`}>
-                    <Icon className="w-6 h-6" />
-                </div>
+                {Icon && (
+                    <div className={`${colors[color]} p-3 rounded-lg`}>
+                        <Icon className="w-6 h-6" />
+                    </div>
+                )}  
             </div>
         </div>
   );
