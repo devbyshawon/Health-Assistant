@@ -40,6 +40,7 @@ const Sidebar = () => {
     { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/admin/users", icon: Users, label: "Users" },
     { to: "/admin/doctors", icon: Stethoscope, label: "Doctors" },
+    { to: "/admin/doctors/pending", icon: ShieldCheck, label: "Pending Doctors" },
     { to: "/admin/hospitals", icon: Hospital, label: "Hospitals" },
     { to: "/admin/logs", icon: ClipboardList, label: "Audit Logs" },
     { to: "/admin/settings", icon: Settings, label: "Settings" },

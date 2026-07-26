@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLocation } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import DashboardLayout from '../../components/shared/DashboardLayout';
@@ -9,7 +9,8 @@ const BookAppointmentPage = () => {
     const [loading, setLoading] = useState(true);
     const [pageError, setPageError] = useState('');
 
-    const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const location = useLocation();
+    const [selectedDoctor, setSelectedDoctor] = useState(location.state?.preselectedDoctor || null);
     const [date, setDate] = useState('');
     const [reason, setReason] = useState('');
 
@@ -17,6 +18,7 @@ const BookAppointmentPage = () => {
     const [booking, setBooking] = useState(false);
 
     const navigate = useNavigate();
+    
 
     useEffect (() => {
         const fetchDoctors = async () => {

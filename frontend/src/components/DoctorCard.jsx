@@ -1,13 +1,11 @@
-import { MapPin, Star, Briefcase } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Star, Briefcase } from 'lucide-react';
 
-const DoctorCard = ({ doctor }) => {
-    const navigate = useNavigate();
+const DoctorCard = ({ doctor, onClick }) => {
     const profile = doctor.doctorProfile || doctor;
 
     return (
         <div
-            onClick={() => navigate(`/doctors/${doctor._id || doctor.userId?._id}`)}
+            onClick={() => onClick(doctor)}
             className='bg-white rounded-xl shadow-sm border border-gray-100 p-5 cursor-pointer hover:shadow-md transition-shadow'
         >
             <div className='flex items-center gap-3 mb-3'>
