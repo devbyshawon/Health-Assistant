@@ -48,8 +48,7 @@ const LandingPage = () => {
 
                             <Link
                                 to="/doctors"
-                                className='border bg-teal text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors text-center'
-                            >
+                                className='border-2 text-white px-6 py-3 rounded-lg font-semibold hover:text-teal-600 hover:bg-white transition-colors text-center'                            >
                                 Find a Doctor
                             </Link>
                             
@@ -86,7 +85,7 @@ const LandingPage = () => {
             </section>
 
             {/* FEATURES */}
-            <section id='features' className='bg-gray-50 py-20'>
+            <section id='features' className='bg-gray-50 py-20 scroll-mt-20'>
                 <div className='max-w-7xl mx-auto px-6'>
                     <div className='text-center mb-12'>
                         <h2 className='text-3xl font-bold text-teal-900 mb-4'>
@@ -185,7 +184,7 @@ const LandingPage = () => {
                                     <Icon className='w-8 h-8 text-teal-600' />
                                 </div>
                                 <div className='text-teal-600 font-bold text-sm mb-2'>{step}</div>
-                                <h3 className='font-semibold text-teal-900 mb-2'>{title}</h3>
+                                <h3 className='font-semibold text-gray-900 mb-2'>{title}</h3>
                                 <p className='text-sm text-gray-500 leading-relaxed'>{desc}</p>
                             </div>
                         ))}
@@ -262,7 +261,7 @@ const LandingPage = () => {
                         </Link>
                         <Link
                             to="/doctors"
-                            className='border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors text-center'
+                            className='border border-gray-300 text-teal-700 px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 hover:text-white transition-colors text-center'
                         >
                             Browse Doctors
                         </Link>
