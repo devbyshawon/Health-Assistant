@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation} from 'react-router-dom';
-import { Stethoscope, Brain, Pill, FileText, MapPin, CheckCircle, 
-    ArrowRight, Users, Calendar, Shield } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
 import api from '../services/api';
+import { ArrowRight, Brain, Stethoscope, Calendar, Pill, FileText, MapPin, Users, Shield, CheckCircle } from 'lucide-react';
+import heroIllustration from '../assets/auth-illustration.svg'
 import Footer from '../components/shared/Footer';
 
+
 const LandingPage = () => {
-    const location = useLocation();
     const [stats, setStats] = useState({ doctors: 0, patients: 0, appointments: 0, specialtyCount: 0 });
-    
+    const [statsLoaded, setStatsLoaded] = useState(false);
+
+    const location = useLocation();
+
     useEffect(() => {
-        api.get('/public/stats').then(res => setStats(res.data)).catch(error => console.error('Failed to load stats', error));
+        api.get('/public/stats')
+            .then(res => { 
+                setStats(res.data); 
+                setStatsLoaded(true); 
+            })
+            .catch(error => console.error('Failed to load stats', error));
     }, []);
 
     useEffect(() => {
@@ -26,8 +34,7 @@ const LandingPage = () => {
         <div>
             {/* HERO */}
             <section className='bg-linear-to-br from-teal-600 to-teal-800 text-white'>
-                <div className='max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center gap-12'>
-                    
+                <div className='max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center gap-12'>                    
                     {/* Left — text */}
                     <div className='flex-1 text-center lg:text-left'>
                         <h1 className='text-4xl lg:text-5xl font-bold leading-tight mb-6'>
@@ -51,14 +58,13 @@ const LandingPage = () => {
                                 className='border-2 text-white px-6 py-3 rounded-lg font-semibold hover:text-teal-600 hover:bg-white transition-colors text-center'                            >
                                 Find a Doctor
                             </Link>
-                            
                         </div>
                     </div>
 
                     {/* Right — illustration */}
                     <div className='flex-1 flex justify-center'>
                         <img
-                            src='/src/assets/auth-illustration.svg'
+                            src={heroIllustration}
                             alt='Health Assistant'
                             className='w-full max-w-md'
                         />
@@ -67,22 +73,24 @@ const LandingPage = () => {
             </section>
 
             {/* STATS */}
-            <section className='bg-white border-b border-gray-100'>
-                <div className='max-w-7xl mx-auto px-6 py-10'>
-                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-8 text-center'>
-                        {[
-                            { value: stats.doctors, label: 'Verified Doctors' },
-                            { value: stats.patients, label: 'Registered Patients' },
-                            { value: stats.appointments, label: 'Appointments Booked' },
-                        ].map(stat => (
-                            <div key={stat.label}>
-                                <p className='text-3xl font-bold text-teal-600'>{stat.value}</p>
-                                <p className='text-sm text-gray-500 mt-1'>{stat.label}</p>
-                            </div>
-                        ))}
+            {statsLoaded && (
+                <section className='bg-white border-b border-gray-100'>
+                    <div className='max-w-7xl mx-auto px-6 py-10'>
+                        <div className='grid grid-cols-2 lg:grid-cols-3 gap-8 text-center'>
+                            {[
+                                { value: stats.doctors, label: 'Verified Doctors' },
+                                { value: stats.patients, label: 'Registered Patients' },
+                                { value: stats.appointments, label: 'Appointments Booked' },
+                            ].map(stat => (
+                                <div key={stat.label}>
+                                    <p className='text-3xl font-bold text-teal-600'>{stat.value}</p>
+                                    <p className='text-sm text-gray-500 mt-1'>{stat.label}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* FEATURES */}
             <section id='features' className='bg-gray-50 py-20 scroll-mt-20'>
@@ -198,13 +206,12 @@ const LandingPage = () => {
                     <div className='flex flex-col lg:flex-row items-center gap-12'>
                         <div className='flex-1 text-white'>
                             <span className='text-teal-200 text-sm font-medium'>For Healthcare Professionals</span>
-                            <h2 className='text-3xl font-bold mt-2 mb-4'>
-                                Join as a Verified Doctor
-                            </h2>
+                            <h2 className='text-3xl font-bold mt-2 mb-4'>Join as a Verified Doctor</h2>
                             <p className='text-teal-100 leading-relaxed mb-6'>
                                 Expand your reach, manage appointments efficiently
                                 and connect with patients who need your expertise.
                             </p>
+
                             <ul className='space-y-3'>
                                 {[
                                     'Get listed in our verified doctor directory',
@@ -218,6 +225,7 @@ const LandingPage = () => {
                                     </li>
                                 ))}
                             </ul>
+
                             <Link
                                 to="/register"
                                 className='inline-flex items-center gap-2 mt-8 bg-white text-teal-700 px-6 py-3 rounded-lg font-semibold hover:bg-teal-100 transition-colors'
@@ -225,6 +233,7 @@ const LandingPage = () => {
                                 Register as Doctor <ArrowRight className='w-4 h-4' />
                             </Link>
                         </div>
+
                         <div className='flex-1 grid grid-cols-2 gap-4'>
                             {[
                                 { value: `${stats.specialtyCount}+`, label: 'Specialties' },
@@ -245,13 +254,12 @@ const LandingPage = () => {
             {/* CTA BANNER */}
             <section className='bg-gray-50 py-28'>
                 <div className='max-w-3xl mx-auto px-6 text-center'>
-                    <h2 className='text-3xl font-bold text-teal-900 mb-4'>
-                        Ready to Take Control of Your Health?
-                    </h2>
+                    <h2 className='text-3xl font-bold text-teal-900 mb-4'>Ready to Take Control of Your Health?</h2>
                     <p className='text-gray-500 mb-8 leading-relaxed'>
                         Join and experience smarter healthcare with AI-powered assistance, 
                         secure patient-doctor collaboration and easy access to your health information.
                     </p>
+
                     <div className='flex flex-col sm:flex-row gap-4 justify-center'>
                         <Link
                             to="/register"
@@ -259,6 +267,7 @@ const LandingPage = () => {
                         >
                             Get Started Free <ArrowRight className='w-4 h-4' />
                         </Link>
+                        
                         <Link
                             to="/doctors"
                             className='border border-gray-300 text-teal-700 px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 hover:text-white transition-colors text-center'

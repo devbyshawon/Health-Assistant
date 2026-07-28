@@ -6,7 +6,6 @@ const TermsOfServicePage = () => {
             <div className='max-w-4xl mx-auto px-6 py-16'>
                 <h1 className='text-3xl font-bold text-teal-900 mb-6'>Terms of Service</h1>
                 <p className='text-sm text-gray-400 mb-8'>Last updated: July 2026</p>
-
                 <div className='space-y-8 text-gray-600 leading-relaxed'>
                     <div>
                         <h2 className='text-lg font-semibold text-teal-900 mb-2'>Acceptance of Terms</h2>

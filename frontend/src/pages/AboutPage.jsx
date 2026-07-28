@@ -14,6 +14,7 @@ const AboutPage = () => {
                         for instant text extraction and use an AI-powered assistant to better understand
                         symptoms and prepare for doctor visits.
                     </p>
+
                     <p>
                         This platform was built as a course project for CSE470 (Software Engineering) at BRAC
                         University. It was developed to demonstrate a complete, production-style full-stack
@@ -21,12 +22,14 @@ const AboutPage = () => {
                         third-party API integration and real-world healthcare workflows, all built from the
                         ground up.
                     </p>
+
                     <p>
                         Under the hood, Health Assistant is built with React and Tailwind CSS on the frontend
                         and Node.js with Express on the backend. Data is stored in MongoDB, authentication is
                         handled with JWT and two-factor verification, prescription scanning uses OCR technology
                         and the AI assistant features are powered by large language model APIs.
                     </p>
+                    
                     <p>
                         Health Assistant was designed and built by Md. Shawon Hossain. You can find more of his
                         work on{' '}
