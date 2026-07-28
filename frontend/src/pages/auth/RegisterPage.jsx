@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle } from "lucide-react";
 import api from '../../services/api';
+import authIllustration from '../../assets/auth-illustration.svg';
+import { CheckCircle } from "lucide-react";
 
 const RegisterPage = () => {
     const [step, setStep] = useState(1);
@@ -11,14 +12,11 @@ const RegisterPage = () => {
 
     const navigate = useNavigate();
 
-    // Step 1 form
     const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '' });
 
-    // Step 2 form
     const [otp, setOtp] = useState('');
     const [resendMessage, setResendMessage] = useState('');
 
-    // Step 3
     const [role, setRole] = useState('');
 
     const handleChange = (e) => {
@@ -105,14 +103,16 @@ const RegisterPage = () => {
         <div className='min-h-screen flex'>
             {/* LEFT SIDE — teal panel */}
             <div className='hidden lg:flex lg:w-1/2 bg-teal-600 flex-col items-center justify-center p-12'>
-                <img src='/src/assets/auth-illustration.svg' className='w-80 mb-8' />
+                <img src={authIllustration} alt='Health Assistant illustration' className='w-80 mb-8' />
                 <h2 className='text-3xl font-bold text-white text-center mb-4'>
                     Your Health, Smarter
                 </h2>
+
                 <p className='text-teal-100 text-center text-sm leading-relaxed max-w-sm'>
                     AI-powered health assistant with verified doctors, 
                     smart reminders and instant symptom analysis
                 </p>
+
                 <div className='mt-8 space-y-3'>
                     {['Verified Doctor Directory', 'AI Symptom Checker', 'Smart Medicine Reminders', 'Prescription Reader'].map(feature => (
                         <div key={feature} className='flex items-center gap-3 text-teal-100'>
@@ -137,9 +137,11 @@ const RegisterPage = () => {
                                     ${step >= s.num ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
                                     {step > s.num ? <CheckCircle className='w-4 h-4' /> : s.num}
                                 </div>
+
                                 <span className={`text-xs ${step >= s.num ? 'text-teal-600 font-medium' : 'text-gray-400'}`}>
                                     {s.label}
                                 </span>
+
                                 {i < 2 && <div className={`w-8 h-px ${step > s.num ? 'bg-teal-600' : 'bg-gray-200'}`} />}
                             </div>
                         ))}
@@ -163,7 +165,6 @@ const RegisterPage = () => {
                             )}
 
                             <form onSubmit={handleSubmit}>
-
                                 <div className='mb-4'>
                                     <label className='block text-sm font-medium text-teal-700 mb-1'>Name</label>
                                     <input
@@ -191,7 +192,7 @@ const RegisterPage = () => {
                                 <div className='mb-4'>
                                     <label className='block text-sm font-medium text-teal-700 mb-1'>Email</label>
                                     <input
-                                        type='text'
+                                        type='email'
                                         name='email'
                                         value={formData.email}
                                         onChange={handleChange}
@@ -219,7 +220,6 @@ const RegisterPage = () => {
                                 >
                                     {loading ? 'Sending OTP...' : 'Send OTP'}
                                 </button>
-
                             </form>
 
                             <p className='mt-4 text-sm text-center text-black-500'>
@@ -231,7 +231,6 @@ const RegisterPage = () => {
                                     Login
                                 </span>
                             </p>
-
                         </div>
                     )}
 
@@ -316,7 +315,9 @@ const RegisterPage = () => {
                                                 : 'border-gray-200 hover:border-teal-300'
                                         }`}
                                     >
+
                                         <div className='text-3xl mb-2'>👤</div>
+
                                         <h3 className='font-semibold text-teal-900 text-sm'>Patient</h3>
                                         <p className='text-xs text-gray-500 mt-1'>Book appointments and manage health</p>
                                     </div>
@@ -329,11 +330,12 @@ const RegisterPage = () => {
                                                 : 'border-gray-200 hover:border-teal-300'
                                         }`}
                                     >
+
                                         <div className='text-3xl mb-2'>🏥</div>
+
                                         <h3 className='font-semibold text-teal-900 text-sm'>Doctor</h3>
                                         <p className='text-xs text-gray-500 mt-1'>Manage patients and appointments</p>
                                     </div>
-
                                 </div>
 
                                 <button
@@ -343,7 +345,6 @@ const RegisterPage = () => {
                                 >
                                     {loading ? 'Completing...' : 'Complete Registration'}
                                 </button>
-
                             </form>
 
                             <button

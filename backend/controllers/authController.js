@@ -281,6 +281,8 @@ const verify2Fa = async (req, res) => {
             user.twoFASetupPending = false;
         }
         await user.save();
+        const oldToken = req.headers.authorization.split(' ')[1]; // Blacklist the temp token
+        addToBlacklist(oldToken);
 
         const token = jwt.sign({ 
             id: user._id, 
@@ -290,10 +292,11 @@ const verify2Fa = async (req, res) => {
         },
         process.env.JWT_SECRET,
         { expiresIn: '1d' });
+
         return res.status(200).json({ 
             message: '2FA verified successfully', 
             token, 
-            user: { _id: user._id, name: user.name, email: user.email, role: user.role } 
+            user: { id: user._id, name: user.name, email: user.email, role: user.role } 
         });
     } catch (error) {
         console.error(error);
@@ -350,6 +353,10 @@ const deleteAccount = async (req, res) => {
         user.isDeleted = true;
         user.deletedAt = new Date()
         await user.save();
+
+        const token = req.headers.authorization.split(' ')[1];
+        addToBlacklist(token);
+        
         return res.status(200).json({ message: 'Account deleted successfully' });
     } catch (error) {
         console.error(error);

@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { CheckCircle } from "lucide-react";
 import api from '../../services/api';
+import authIllustration from '../../assets/auth-illustration.svg';
+import { CheckCircle } from "lucide-react";
+
 
 const LoginPage = () => {
     const [step, setStep] = useState(1);
@@ -12,10 +14,8 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const { login, token, user } = useAuth();
 
-    // Step 1
     const [formData, setFormData] = useState({ emailOrUsername: '', password: '' });
 
-    // Step 2
     const [twoFAOtp, setTwoFAOtp] = useState('');
 
     const redirectAfterLogin = (user, redirectHint) => {
@@ -33,6 +33,13 @@ const LoginPage = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
+
+    useEffect(() => {
+        if (token && !user) {
+            localStorage.removeItem('token');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
 
     const handleChange = (e) => {
@@ -86,14 +93,16 @@ const LoginPage = () => {
         <div className='min-h-screen flex'>
                 {/* LEFT SIDE — teal panel */}
                 <div className='hidden lg:flex lg:w-1/2 bg-teal-600 flex-col items-center justify-center p-12'>
-                    <img src='/src/assets/auth-illustration.svg' className='w-80 mb-8' />
+                    <img src={authIllustration} alt='Health Assistant illustration' className='w-80 mb-8' />
                     <h2 className='text-3xl font-bold text-white text-center mb-4'>
                         Your Health, Smarter
                     </h2>
+
                     <p className='text-teal-100 text-center text-sm leading-relaxed max-w-sm'>
                         AI-powered health assistant with verified doctors, 
                         smart reminders and instant symptom analysis
                     </p>
+
                     <div className='mt-8 space-y-3'>
                         {['Verified Doctor Directory', 'AI Symptom Checker', 'Smart Medicine Reminders', 'Prescription Reader'].map(feature => (
                             <div key={feature} className='flex items-center gap-3 text-teal-100'>
@@ -125,11 +134,10 @@ const LoginPage = () => {
                                 )}
 
                                 <form onSubmit={handleLogin}>
-
                                     <div className='mb-4'>
                                         <label className='block text-sm font-medium text-teal-700 mb-1'>Email or Username</label>
                                         <input
-                                            type='text'
+                                            type='email'
                                             name='emailOrUsername'
                                             value={formData.emailOrUsername}
                                             onChange={handleChange} 
@@ -157,7 +165,6 @@ const LoginPage = () => {
                                     >
                                         {loading ? 'Logging in...' : 'Login'}
                                     </button>
-
                                 </form>
 
                                 <p className='mt-4 text-sm text-center text-black-500'>
@@ -169,7 +176,6 @@ const LoginPage = () => {
                                         Register
                                     </span>
                                 </p>
-
                             </div>
                         )}
 

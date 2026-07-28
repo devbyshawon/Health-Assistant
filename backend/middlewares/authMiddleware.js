@@ -18,6 +18,9 @@ const protect = async (req, res, next) => {
         if (!decoded) {
             return res.status(403).json({ message: 'Invalid or expired token' });
         }
+        if (decoded.isTwoFAVerified === false && req.path !== '/verify-2fa') {
+            return res.status(401).json({ message: 'Two-factor verification required' });
+        }
 
         req.tokenPayload = decoded;
         const user = await User.findById(decoded.id);
@@ -27,7 +30,10 @@ const protect = async (req, res, next) => {
         if (user.isBlocked) {
             return res.status(403).json({ message: 'Account blocked' });
         }
-        
+        if (user.isDeleted) {
+            return res.status(403).json({ message: 'Account has been deleted' });
+        }
+
         req.user = user;
         next();
     } catch (error) {
