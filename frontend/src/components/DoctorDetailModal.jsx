@@ -6,7 +6,6 @@ import { Briefcase, Star, Phone, Clock } from 'lucide-react';
 const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
     const navigate = useNavigate();
     const { isPatient, isDoctor, isAdmin } = useAuth();
-
     if (!doctor) {
         return null;
     }
@@ -19,7 +18,11 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
 
     const handleBookAppointment = () => {
         onClose();
-        navigate('/appointments/book', { state: { preselectedDoctor: doctor } });
+        const normalizedDoctor = {
+            _id: doctor._id && !doctor.userId ? doctor._id : doctor.userId?._id,
+            name: doctor.name || doctor.userId?.name,
+        };
+        navigate('/appointments/book', { state: { preselectedDoctor: normalizedDoctor } });
     };
 
     const handleLoginPrompt = () => {
@@ -28,11 +31,18 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={`Dr. ${doctor.name || doctor.userId?.name}`}>
+        <Modal 
+            isOpen={isOpen} 
+            onClose={onClose} 
+            title={`Dr. ${doctor.name || doctor.userId?.name}`}
+        >
             <div className='flex items-center gap-4 mb-4'>
                 <div className='w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold overflow-hidden'>
                     {(doctor.profilePic || doctor.userId?.profilePic) ? (
-                        <img src={`http://localhost:5001${doctor.profilePic || doctor.userId?.profilePic}`} alt={doctor.name || doctor.userId?.name} className='w-full h-full object-cover' />
+                        <img 
+                            src={`http://localhost:5001${doctor.profilePic || doctor.userId?.profilePic}`} 
+                            alt={doctor.name || doctor.userId?.name} 
+                            className='w-full h-full object-cover' />
                     ) : (
                         (doctor.name || doctor.userId?.name || 'D')[0]
                     )}
@@ -66,6 +76,7 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
                     <h4 className='text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
                         <Clock className='w-4 h-4 text-gray-400' /> Availability
                     </h4>
+                    
                     <div className='flex flex-wrap gap-2'>
                         {sortedAvailability.map((slot, i) => (
                             <span key={i} className='text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-gray-600'>

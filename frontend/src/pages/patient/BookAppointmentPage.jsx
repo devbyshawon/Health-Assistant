@@ -1,8 +1,9 @@
-import { useState, useEffect, useLocation } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import DashboardLayout from '../../components/shared/DashboardLayout';
 import Modal from '../../components/shared/Modal';
+
 
 const BookAppointmentPage = () => {
     const [doctors, setDoctors] = useState([]);
@@ -10,15 +11,14 @@ const BookAppointmentPage = () => {
     const [pageError, setPageError] = useState('');
 
     const location = useLocation();
+    const navigate = useNavigate();
+
     const [selectedDoctor, setSelectedDoctor] = useState(location.state?.preselectedDoctor || null);
     const [date, setDate] = useState('');
     const [reason, setReason] = useState('');
 
     const [formError, setFormError] = useState('');
     const [booking, setBooking] = useState(false);
-
-    const navigate = useNavigate();
-    
 
     useEffect (() => {
         const fetchDoctors = async () => {
@@ -60,7 +60,7 @@ const BookAppointmentPage = () => {
         <DashboardLayout>
             <div className='max-w-5xl mx-auto'>
                 <div className='mb-6'>
-                    <h1 className='text-2xl font-bold text-gray-900'>Book Appointment</h1>
+                    <h1 className='text-2xl font-bold text-teal-900'>Book Appointment</h1>
                     <p className='text-sm text-gray-500 mt-1'>Choose a doctor and pick a time that works for you</p>
                 </div>
 
@@ -89,12 +89,13 @@ const BookAppointmentPage = () => {
                     </div>
                 )}
 
-                {/* BOOKING MODAL */}
                 <Modal
                     isOpen={!!selectedDoctor}
                     onClose={() => { 
                         setSelectedDoctor(null); 
                         setDate(''); 
+                        setReason('');
+                        setFormError('');
                     }}
                     title={selectedDoctor ? `Book with ${selectedDoctor.name}` : ''}
                 >

@@ -5,7 +5,7 @@ const createNotification = require('../utils/createNotification');
 const bookAppointment = async (req, res) => {
     try {
         const { doctorId, date, reason } = req.body;
-        if (!doctorId || !date || !reason) {
+        if (!doctorId || !date) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -25,13 +25,13 @@ const bookAppointment = async (req, res) => {
         await createNotification({
             recipientId: req.user._id,
             title: 'Appointment Booked',
-            message: `Your appointment is scheduled for ${date}`,
+            message: `Your appointment is scheduled for ${new Date(date).toLocaleString()}`,
             type: 'appointment'
         });
         await createNotification({
             recipientId: doctorId,
             title: 'New Appointment Request',
-            message: `You have a new appointment request for ${date}`,
+            message: `You have a new appointment request for ${new Date(date).toLocaleString()}`,
             type: 'appointment'
         });
         return res.status(201).json({ success: true, message: 'Appointment booked', data: appointment });
@@ -61,13 +61,13 @@ const rescheduleAppointment = async (req, res) => {
         await createNotification({
             recipientId: appointment.patientId,
             title: 'Appointment Rescheduled',
-            message: `Your appointment has been rescheduled to ${date}`,
+            message: `Your appointment has been rescheduled to ${new Date(date).toLocaleString()}`,
             type: 'appointment'
         });
         await createNotification({
             recipientId: appointment.doctorId,
             title: 'Appointment Rescheduled',
-            message: `An appointment has been rescheduled to ${date}`,
+            message: `An appointment has been rescheduled to ${new Date(date).toLocaleString()}`,
             type: 'appointment'
         });
         return res.status(200).json(appointment);
@@ -88,6 +88,9 @@ const cancelAppointment = async (req, res) => {
         }
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found'});
+        }
+        if (['Completed', 'Cancelled'].includes(appointment.status)) {
+            return res.status(400).json({ message: `Cannot cancel a ${appointment.status.toLowerCase()} appointment` });
         }
         appointment.status = 'Cancelled';
 
@@ -113,7 +116,12 @@ const cancelAppointment = async (req, res) => {
 
 const getMyAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.find({ patientId: req.user._id }).populate('doctorId', 'name email').sort({ date: -1 });
+        const appointments = await Appointment.find({ patientId: req.user._id }).populate({
+            path: 'doctorId', 
+            select: 'name email doctorProfile',
+            populate: { path: 'doctorProfile', select: 'specialty' }
+        }).sort({ date: -1 });
+
         return res.status(200).json(appointments);
     } catch (error) {
         console.error(error);
@@ -138,8 +146,8 @@ const markComplete = async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment not found'});
         }
-        if (appointment.status === 'Completed') {
-            return res.status(400).json({ message: 'Already completed' });
+        if (['Completed', 'Cancelled'].includes(appointment.status)) {
+            return res.status(400).json({ message: `Cannot complete a ${appointment.status.toLowerCase()} appointment` });
         }
         appointment.status = 'Completed';
 
@@ -157,4 +165,31 @@ const markComplete = async (req, res) => {
     }
 };
 
-module.exports = { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments, getDoctorAppointments, markComplete };
+const confirmAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const appointment = await Appointment.findOne({ _id: id, doctorId: req.user._id });
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+        if (appointment.status !== 'Pending') {
+            return res.status(400).json({ message: 'Only pending appointments can be confirmed' });
+        }
+        appointment.status = 'Confirmed';
+
+        await appointment.save();
+        await createNotification({
+            recipientId: appointment.patientId,
+            title: 'Appointment Confirmed',
+            message: 'Your appointment has been confirmed by the doctor.',
+            type: 'appointment'
+        });
+        return res.status(200).json({ message: 'Appointment confirmed', appointment });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments, 
+    getDoctorAppointments, markComplete, confirmAppointment };
