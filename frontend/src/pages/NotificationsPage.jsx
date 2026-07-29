@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
-import DashboardLayout from '../../components/shared/DashboardLayout';
+import api from '../services/api';
+import DashboardLayout from '../components/shared/DashboardLayout';
 import { Bell } from 'lucide-react';
 
 const typeColors = {
