@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import DashboardLayout from '../../components/shared/DashboardLayout';
-import { Pill, Plus } from 'lucide-react';
+import { Plus, Pill } from 'lucide-react';
 import ReminderCard from '../../components/ReminderCard';
 import Modal from '../../components/shared/Modal';
 
@@ -19,7 +19,7 @@ const ReminderPage = () => {
     });
 
     const [editingReminder, setEditingReminder] = useState(null);
-    const [editForm, setEditForm] = useState([]);
+    const [editForm, setEditForm] = useState({});
     const [editFormError, setEditFormError] = useState('');
     const [updating, setUpadating] = useState(false);
 
@@ -48,10 +48,9 @@ const ReminderPage = () => {
             setFormError('Medicine name and time are required');
             return;
         }
-
         setCreating(true);
         try {
-            const response = await api.post('auth/reminders', newReminder);
+            const response = await api.post('/auth/reminders', newReminder);
             setReminders(prev => [response.data.data, ...prev]);
             setNewReminder({
                 medicineName: '', dosage: '', time: '', repeat: 'None', notes: ''
@@ -86,7 +85,6 @@ const ReminderPage = () => {
             setEditFormError('Medicine name and time are required');
             return;   
         }
-
         setUpadating(true);
         try {
             const response = await api.patch(`/auth/reminders/${editingReminder._id}`, editForm);
@@ -96,6 +94,15 @@ const ReminderPage = () => {
             setEditFormError(error.response?.data?.message || 'Something went wrong');
         } finally {
             setUpadating(false);
+        }
+    };
+
+    const handleToggleComplete = async (reminder) => {
+        try {
+            const response = await api.patch(`/auth/reminders/${reminder._id}`, { completed: !reminder.completed });
+            setReminders(prev => prev.map(r => r._id === reminder._id ? response.data.data : r));
+        } catch (error) {
+            setPageError(error.response?.data?.message || 'Failed to update reminder');
         }
     };
 
@@ -114,13 +121,12 @@ const ReminderPage = () => {
     return (
         <DashboardLayout>
             <div className='max-w-5xl mx-auto'>
-                
-                {/* Page header */}
                 <div className='flex justify-between items-center mb-6'>
                     <div>
                         <h1 className='text-2xl font-bold text-gray-900'>Medicine Reminders</h1>
                         <p className='text-sm text-gray-500 mt-1'>Never miss a dose</p>
                     </div>
+
                     <button
                         onClick={() => setShowModal(true)}
                         className='bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2'
@@ -142,6 +148,7 @@ const ReminderPage = () => {
                         <Pill className='w-12 h-12 text-gray-300 mx-auto mb-3' />
                         <p className='text-gray-900 font-medium'>No reminders yet</p>
                         <p className='text-sm text-gray-400 mt-1'>Add a reminder so you never miss your medication</p>
+
                         <button
                             onClick={() => setShowModal(true)}
                             className='mt-4 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700'
@@ -156,6 +163,7 @@ const ReminderPage = () => {
                                 key={reminder._id}
                                 reminder={reminder}
                                 onEdit={handleEditStart}
+                                onToggleComplete={handleToggleComplete}
                                 onDelete={handleDelete}
                             />
                         ))}
@@ -196,6 +204,7 @@ const ReminderPage = () => {
                                     className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500'
                                 />
                             </div>
+
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Repeat</label>
                                 <select
@@ -279,6 +288,7 @@ const ReminderPage = () => {
                                     className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500'
                                 />
                             </div>
+                            
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Repeat</label>
                                 <select
@@ -310,7 +320,7 @@ const ReminderPage = () => {
                             <textarea
                                 name='notes'
                                 value={editForm.notes || ''}
-                                onChange={handleChange}
+                                onChange={handleEditChange}
                                 rows={2}
                                 className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500'
                             />
