@@ -10,7 +10,12 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
     if (!doctor) {
         return null;
     }
+
     const profile = doctor.doctorProfile || doctor;
+    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const sortedAvailability = profile.availability
+        ? [...profile.availability].sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day))
+        : [];
 
     const handleBookAppointment = () => {
         onClose();
@@ -23,11 +28,16 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={doctor.name || doctor.userId?.name}>
+        <Modal isOpen={isOpen} onClose={onClose} title={`Dr. ${doctor.name || doctor.userId?.name}`}>
             <div className='flex items-center gap-4 mb-4'>
-                <div className='w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold text-xl'>
-                    {(doctor.name || doctor.userId?.name || 'D')[0]}
+                <div className='w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold overflow-hidden'>
+                    {(doctor.profilePic || doctor.userId?.profilePic) ? (
+                        <img src={`http://localhost:5001${doctor.profilePic || doctor.userId?.profilePic}`} alt={doctor.name || doctor.userId?.name} className='w-full h-full object-cover' />
+                    ) : (
+                        (doctor.name || doctor.userId?.name || 'D')[0]
+                    )}
                 </div>
+                
                 <div>
                     <h3 className='font-semibold text-gray-900 text-lg'>{doctor.name || doctor.userId?.name}</h3>
                     <p className='text-sm text-gray-500'>{profile.specialty || 'General Physician'}</p>
@@ -43,7 +53,7 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
                 {profile.rating > 0 && (
                     <span className='flex items-center gap-2'><Star className='w-4 h-4 text-yellow-500' /> {profile.rating} rating</span>
                 )}
-                {profile.phone && (
+                {profile.phone && isPatient && (
                     <span className='flex items-center gap-2'><Phone className='w-4 h-4 text-gray-400' /> {profile.phone}</span>
                 )}
                 {profile.fees && (
@@ -51,13 +61,13 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
                 )}
             </div>
 
-            {profile.availability?.length > 0 && (
+            {sortedAvailability.length > 0 && (
                 <div className='mb-4'>
                     <h4 className='text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
                         <Clock className='w-4 h-4 text-gray-400' /> Availability
                     </h4>
                     <div className='flex flex-wrap gap-2'>
-                        {profile.availability.map((slot, i) => (
+                        {sortedAvailability.map((slot, i) => (
                             <span key={i} className='text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-gray-600'>
                                 {slot.day}: {slot.startTime}–{slot.endTime}
                             </span>

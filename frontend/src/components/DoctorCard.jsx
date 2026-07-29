@@ -1,4 +1,4 @@
-import { Star, Briefcase } from 'lucide-react';
+import { Briefcase, Star } from 'lucide-react';
 
 const DoctorCard = ({ doctor, onClick }) => {
     const profile = doctor.doctorProfile || doctor;
@@ -9,11 +9,16 @@ const DoctorCard = ({ doctor, onClick }) => {
             className='bg-white rounded-xl shadow-sm border border-gray-100 p-5 cursor-pointer hover:shadow-md transition-shadow'
         >
             <div className='flex items-center gap-3 mb-3'>
-                <div className='w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold'>
-                    {(doctor.name || doctor.userId?.name || 'D')[0]}
+                <div className='w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold overflow-hidden'>
+                    {(doctor.profilePic || doctor.userId?.profilePic) ? (
+                        <img src={`http://localhost:5001${doctor.profilePic || doctor.userId?.profilePic}`} alt={doctor.name || doctor.userId?.name} className='w-full h-full object-cover' />
+                    ) : (
+                        (doctor.name || doctor.userId?.name || 'D')[0]
+                    )}
                 </div>
+                
                 <div>
-                    <h3 className='font-semibold text-teal-900'>{doctor.name || doctor.userId?.name}</h3>
+                    <h3 className='font-semibold text-teal-900'>Dr. {doctor.name || doctor.userId?.name}</h3>
                     <p className='text-xs text-gray-500'>{profile.specialty || 'General Physician'}</p>
                 </div>
             </div>
