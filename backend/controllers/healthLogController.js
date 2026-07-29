@@ -25,15 +25,10 @@ const createHealthLog = async (req, res) => {
 
 const getHealthLogs = async (req, res) => {
     try {
-        const user = req.user.role;
-        let logs;
-        if (user === 'user') {
-            logs = await HealthLog.find({ userId: req.user._id }).sort({ date: -1 });
-        } else if (user === 'doctor') {
-            logs = await HealthLog.find().sort({ date: -1 });
-        } else {
+        if (req.user.role !== 'user') {
             return res.status(403).json({ message: 'Access denied' });
         }
+        const logs = await HealthLog.find({ userId: req.user._id }).sort({ date: -1 });
         return res.status(200).json({ success: true, data: logs });
     } catch (error) {
         console.error(error);
@@ -65,7 +60,7 @@ const updateHealthLog = async (req, res) => {
         if (!healthLog) {
             return res.status(404).json({ message: 'Health log not found '});
         }
-        return res.status(200).json(healthLog);
+        return res.status(200).json({ success: true, data: healthLog });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
