@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { LayoutDashboard, Users, Stethoscope, Calendar, FileText, Pill, MessageSquare, 
-  Bell, Settings, Hospital, ClipboardList, ShieldCheck, Activity, Home, LogIn, UserPlus } from "lucide-react";
+  Bell, Settings, Hospital, ClipboardList, ShieldCheck, Activity, Home, LogIn, UserPlus, UserCog } from "lucide-react";
 
 const Sidebar = () => {
-  const { isAdmin, isDoctor, isPatient } = useAuth();
+  const { isAdmin, isDoctor, isPatient, doctorVerified } = useAuth();
   const location = useLocation();
 
   const guestLinks = [
@@ -13,7 +13,6 @@ const Sidebar = () => {
   { to: "/login", icon: LogIn, label: "Login" },
   { to: "/register", icon: UserPlus, label: "Register" },
 ];
-
 
   const patientLinks = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -27,14 +26,20 @@ const Sidebar = () => {
     { to: "/settings", icon: Settings, label: "Settings" },
   ];
 
-  const doctorLinks = [
-    { to: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/doctor/appointments", icon: Calendar, label: "Appointments" },
-    { to: "/doctor/patients", icon: Users, label: "Patients" },
-    { to: "/doctor/healthlogs", icon: Activity, label: "Health Logs" },
-    { to: "/notifications", icon: Bell, label: "Notifications" },
-    { to: "/settings", icon: Settings, label: "Settings" },
-  ];
+  const doctorLinksUnverified = [
+        { to: "/doctor/upload-docs", icon: FileText, label: "Verification Docs" },
+        { to: "/notifications", icon: Bell, label: "Notifications" },
+        { to: "/settings", icon: Settings, label: "Settings" },
+    ];
+
+  const doctorLinksVerified = [
+        { to: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { to: "/doctor/appointments", icon: Calendar, label: "Appointments" },
+        { to: "/doctor/patients", icon: Users, label: "Patients" },
+        { to: "/doctor/profile", icon: UserCog, label: "My Profile" },
+        { to: "/notifications", icon: Bell, label: "Notifications" },
+        { to: "/settings", icon: Settings, label: "Settings" },
+    ];
 
   const adminLinks = [
     { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
@@ -42,11 +47,14 @@ const Sidebar = () => {
     { to: "/admin/doctors", icon: Stethoscope, label: "Doctors" },
     { to: "/admin/doctors/pending", icon: ShieldCheck, label: "Pending Doctors" },
     { to: "/admin/hospitals", icon: Hospital, label: "Hospitals" },
+    { to: "/admin/notify", icon: Bell, label: "Send Notification" },
     { to: "/admin/logs", icon: ClipboardList, label: "Audit Logs" },
     { to: "/admin/settings", icon: Settings, label: "Settings" },
   ];
 
-  const links = isAdmin ? adminLinks : isDoctor ? doctorLinks : isPatient? patientLinks : guestLinks;
+  const doctorLinks = doctorVerified ? doctorLinksVerified : doctorLinksUnverified;
+
+  const links = isAdmin ? adminLinks : isDoctor ? doctorLinks : isPatient ? patientLinks : guestLinks;
 
   return (
     <aside className="w-60 min-h-screen bg-white border-r border-gray-200 flex flex-col">

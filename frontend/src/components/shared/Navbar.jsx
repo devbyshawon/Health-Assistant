@@ -1,6 +1,6 @@
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Bell } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
     const { user, logout, isAdmin, isDoctor, isPatient } = useAuth();
@@ -12,9 +12,7 @@ const Navbar = () => {
         navigate('/login');
     };
 
-    const isDoctorDirectory = location.pathname === '/doctors';
-
-    const homePath = isAdmin ? '/admin' : isDoctor ? '/doctor/dashboard' : isPatient ? '/dashboard' : '/';
+    const isLandingPage = location.pathname === '/';
 
     const isDashboardPage = location.pathname.startsWith('/dashboard') ||
         location.pathname.startsWith('/doctor') ||
@@ -38,23 +36,19 @@ const Navbar = () => {
                     Health Assistant
                 </div>
                 <div className='flex items-center gap-4'>
-                    {isDoctorDirectory && (
-                        <button
-                            onClick={() => navigate(homePath)}
-                            className='text-sm font-medium text-teal-900 hover:text-teal-600'
-                        >
-                            Home
-                        </button>
-                    )}
-                    <button
-                        onClick={() => navigate('/notifications')}
-                        className='relative p-2 text-gray-500 hover:text-teal-600 transition-colors'
-                    >
-                        <Bell className='w-5 h-5' />
-                    </button>
-                    <span className='text-sm text-teal-900 font-medium'>
-                        {user.name}
-                    </span>
+                    <NotificationDropdown />
+                    
+                    <div className='flex items-center gap-2'>
+                        <div className='w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-sm overflow-hidden'>
+                            {user.profilePic ? (
+                                <img src={`http://localhost:5001${user.profilePic}`} alt={user.name} className='w-full h-full object-cover' />
+                            ) : (
+                                user.name?.[0] || 'U'
+                            )}
+                        </div>
+                        <span className='text-sm text-teal-900 font-medium'>{user.name}</span>
+                    </div>
+
                     <button
                         onClick={handleLogout}
                         className='text-sm bg-red-500 text-white px-4 py-1.5 rounded-lg hover:bg-red-600 transition-colors'
@@ -77,10 +71,10 @@ const Navbar = () => {
 
             {!user && (
                 <div className='hidden md:flex items-center gap-6'>
-                    {isDoctorDirectory ? (
-                        <Link to="/" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Home</Link>
-                    ) : (
+                    {isLandingPage ? (
                         <Link to="/#features" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Features</Link>
+                    ) : (
+                        <Link to="/" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Home</Link>
                     )}
                     <Link to="/doctors" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Doctors</Link>
                     <Link to="/login" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Login</Link>
@@ -95,7 +89,16 @@ const Navbar = () => {
 
             {user && (
                 <div className='flex items-center gap-4'>
-                    <span className='text-sm text-teal-900'>{user.name}</span>
+                    <div className='flex items-center gap-2'>
+                        <div className='w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-sm overflow-hidden'>
+                            {user.profilePic ? (
+                                <img src={`http://localhost:5001${user.profilePic}`} alt={user.name} className='w-full h-full object-cover' />
+                            ) : (
+                                user.name?.[0] || 'U'
+                            )}
+                        </div>
+                        <span className='text-sm text-teal-900 font-medium'>{user.name}</span>
+                    </div>
                     <button
                         onClick={handleLogout}
                         className='text-sm bg-red-500 text-white px-4 py-1.5 rounded-lg hover:bg-red-600 transition-colors'

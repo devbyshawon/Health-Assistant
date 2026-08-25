@@ -35,6 +35,7 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
             isOpen={isOpen} 
             onClose={onClose} 
             title={`Dr. ${doctor.name || doctor.userId?.name}`}
+            titleClassName='text-teal-900'
         >
             <div className='flex items-center gap-4 mb-4'>
                 <div className='w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-bold overflow-hidden'>
@@ -49,7 +50,7 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
                 </div>
                 
                 <div>
-                    <h3 className='font-semibold text-gray-900 text-lg'>{doctor.name || doctor.userId?.name}</h3>
+                    <h3 className='font-semibold text-teal-900 text-lg'>{doctor.name || doctor.userId?.name}</h3>
                     <p className='text-sm text-gray-500'>{profile.specialty || 'General Physician'}</p>
                 </div>
             </div>

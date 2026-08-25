@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, titleClassName = 'text-gray-900', children }) => {
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -26,7 +26,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             >
                 <div className='flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-100'>
                     
-                    <h2 className='text-lg font-semibold text-gray-900'>{title}</h2>
+                    <h2 className={`text-lg font-semibold ${titleClassName}`}>{title}</h2>
                     <button onClick={onClose} className='text-gray-400 hover:text-gray-600'>
                         <X className='w-5 h-5' />
                     </button>
