@@ -10,16 +10,35 @@ const typeColors = {
     system: 'bg-gray-50 text-gray-600',
 };
 
+const formatRelativeTime = (dateString) => {
+    const date = new Date(dateString);
+    const diffMs = Date.now() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+};
+
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageError, setPageError] = useState('');
 
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await api.get('/auth/notifications');
+                const response = await api.get('/auth/notifications?page=1&limit=20');
                 setNotifications(response.data.data);
+                setHasMore(response.data.pagination.hasMore);
             } catch (error) {
                 setPageError(error.response?.data?.message || 'Failed to load notifications');
             } finally {
@@ -28,6 +47,21 @@ const NotificationsPage = () => {
         };
         fetchNotifications();
     }, []);
+
+    const handleLoadMore = async () => {
+        setLoadingMore(true);
+        try {
+            const nextPage = page + 1;
+            const response = await api.get(`/auth/notifications?page=${nextPage}&limit=20`);
+            setNotifications(prev => [...prev, ...response.data.data]);
+            setHasMore(response.data.pagination.hasMore);
+            setPage(nextPage);
+        } catch (error) {
+            setPageError(error.response?.data?.message || 'Failed to load more notifications');
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     const handleMarkAsRead = async (id) => {
         try {
@@ -39,10 +73,15 @@ const NotificationsPage = () => {
     };
 
     const handleMarkAllAsRead = async () => {
-        const unread = notifications.filter(n => !n.isRead);
         try {
-            await Promise.all(unread.map(n => api.patch(`/auth/notifications/${n._id}/read`)));
-            setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+            const unread = notifications.filter(n => !n.isRead);
+            const results = await Promise.allSettled(unread.map(n => api.patch(`/auth/notifications/${n._id}/read`)));
+            const succeededIds = unread.filter((_, i) => results[i].status === 'fulfilled').map(n => n._id);
+            setNotifications(prev => prev.map(n => succeededIds.includes(n._id) ? { ...n, isRead: true } : n));
+            const failedCount = results.filter(r => r.status === 'rejected').length;
+            if (failedCount > 0) {
+                setPageError(`${failedCount} notification(s) could not be marked as read`);
+            }
         } catch (error) {
             setPageError(error.response?.data?.message || 'Failed to mark all as read');
         }
@@ -52,17 +91,17 @@ const NotificationsPage = () => {
 
     return (
         <DashboardLayout>
-            <div className='max-w-3xl mx-auto'>
+            <div className='max-w-6xl mx-auto'>
 
                 <div className='flex justify-between items-center mb-6'>
                     <div>
-                        <h1 className='text-2xl font-bold text-gray-900'>Notifications</h1>
-                        <p className='text-sm text-gray-500 mt-1'>Stay updated on your appointments, reminders, and more</p>
+                        <h1 className='text-2xl font-bold text-teal-900'>Notifications</h1>
+                        <p className='text-sm text-gray-500 mt-1'>Stay updated on your appointments, reminders and more</p>
                     </div>
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllAsRead}
-                            className='text-sm text-teal-600 hover:text-teal-700 font-medium'
+                            className='text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer'
                         >
                             Mark all as read
                         </button>
@@ -86,7 +125,7 @@ const NotificationsPage = () => {
                         {notifications.map(n => (
                             <div
                                 key={n._id}
-                                className={`bg-white rounded-xl border p-4 flex items-start gap-3 ${
+                                className={`bg-white rounded-xl border p-4 flex items-start gap-3 transition-colors ${
                                     !n.isRead ? 'border-teal-200 bg-teal-50/30' : 'border-gray-100'
                                 }`}
                             >
@@ -96,17 +135,17 @@ const NotificationsPage = () => {
                                         <div>
                                             <div className='flex items-center gap-2 mb-1'>
                                                 <p className='text-sm font-medium text-gray-900'>{n.title}</p>
-                                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeColors[n.type]}`}>
+                                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeColors[n.type] || 'bg-gray-50 text-gray-600'}`}>
                                                     {n.type}
                                                 </span>
                                             </div>
                                             <p className='text-sm text-gray-600'>{n.message}</p>
-                                            <p className='text-xs text-gray-400 mt-1'>{new Date(n.createdAt).toLocaleString()}</p>
+                                            <p className='text-xs text-gray-400 mt-1'>{formatRelativeTime(n.createdAt)}</p>
                                         </div>
                                         {!n.isRead && (
                                             <button
                                                 onClick={() => handleMarkAsRead(n._id)}
-                                                className='text-xs text-teal-600 hover:text-teal-700 font-medium whitespace-nowrap flex-shrink-0'
+                                                className='text-xs text-teal-600 hover:text-teal-700 font-medium whitespace-nowrap shrink-0 cursor-pointer'
                                             >
                                                 Mark as read
                                             </button>
@@ -115,6 +154,18 @@ const NotificationsPage = () => {
                                 </div>
                             </div>
                         ))}
+
+                        {hasMore && (
+                            <div className='pt-4'>
+                                <button 
+                                    onClick={handleLoadMore} 
+                                    disabled={loadingMore}
+                                    className='w-full text-center text-sm text-teal-600 hover:text-teal-700 font-medium py-3 bg-white rounded-xl border border-gray-100 disabled:opacity-50 cursor-pointer shadow-sm hover:bg-gray-50 transition'
+                                >
+                                    {loadingMore ? 'Loading...' : 'Load More'}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 

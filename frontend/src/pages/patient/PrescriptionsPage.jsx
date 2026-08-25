@@ -53,6 +53,7 @@ const PrescriptionPage = () => {
             setPrescriptions(prev => [response.data.prescription, ...prev]);
             setFile(null);
             setDescription('');
+            setOcrText('');
         } catch (error) {
             setFormError(error.response?.data?.message || 'Prescription upload failed');
         } finally {
@@ -97,7 +98,7 @@ const PrescriptionPage = () => {
 
                 <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6'>
                     <h3 className='font-semibold text-gray-900 mb-4'>Upload Prescription</h3>
-                    <div className='mb-3'>
+                    <div className='mb-3 flex items-center gap-2'>
                         <button
                             type='button'
                             onClick={() => fileInputRef.current.click()}
@@ -105,9 +106,18 @@ const PrescriptionPage = () => {
                         >
                             Choose File
                         </button>
-                        <span className='ml-3 text-sm text-gray-500'>
+                        <span className='text-sm text-gray-500'>
                             {file ? file.name : 'No file chosen'}
                         </span>
+                        {file && (
+                            <button
+                                type='button'
+                                onClick={() => { setFile(null); setOcrText(''); }}
+                                className='text-xs text-red-500 hover:text-red-600 font-medium'
+                            >
+                                Clear
+                            </button>     
+                        )}
                         <input
                             ref={fileInputRef}
                             type='file'

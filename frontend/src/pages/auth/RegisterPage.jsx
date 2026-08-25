@@ -277,7 +277,7 @@ const RegisterPage = () => {
                                     type='button'
                                     onClick={resendOtp}
                                     disabled={loading}
-                                    className='w-full mt-3 text-sm text-teal-500 hover:text-teal-700 disabled:opacity-50'
+                                    className='w-full mt-3 text-sm text-teal-600 hover:text-teal-700 disabled:opacity-50 hover:underline cursor-pointer'
                                 >
                                     {loading ? 'Sending...' : 'Resend OTP'}
                                 </button>
@@ -312,7 +312,7 @@ const RegisterPage = () => {
                                         className={`border-2 rounded-xl p-4 cursor-pointer text-center transition-colors ${
                                             role === 'user'
                                                 ? 'border-teal-600 bg-teal-50'
-                                                : 'border-gray-200 hover:border-teal-300'
+                                                : 'border-gray-200 hover:border-teal-600'
                                         }`}
                                     >
 
@@ -327,7 +327,7 @@ const RegisterPage = () => {
                                         className={`border-2 rounded-xl p-4 cursor-pointer text-center transition-colors ${
                                             role === 'doctor'
                                                 ? 'border-teal-600 bg-teal-50'
-                                                : 'border-gray-200 hover:border-teal-300'
+                                                : 'border-gray-200 hover:border-teal-600'
                                         }`}
                                     >
 
@@ -350,7 +350,7 @@ const RegisterPage = () => {
                             <button
                                 type='button'
                                 onClick={() => { setStep(2); setError(''); }}
-                                className='w-full mt-3 text-sm text-teal-500 hover:text-teal-700 disabled:opacity-50'
+                                className='w-full mt-3 text-sm text-teal-600 hover:text-teal-700 disabled:opacity-50 hover:underline cursor-pointer'
                             >
                                 ← Back
                             </button>

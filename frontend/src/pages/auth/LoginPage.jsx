@@ -137,7 +137,7 @@ const LoginPage = () => {
                                     <div className='mb-4'>
                                         <label className='block text-sm font-medium text-teal-700 mb-1'>Email or Username</label>
                                         <input
-                                            type='email'
+                                            type='text'
                                             name='emailOrUsername'
                                             value={formData.emailOrUsername}
                                             onChange={handleChange} 
