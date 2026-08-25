@@ -56,7 +56,7 @@ const PrivacyPolicyPage = () => {
                             please reach out to us at{' '}
                             <a href="mailto:support.healthassistant@gmail.com" className='text-gray-900 hover:underline'>
                                 support.healthassistant@gmail.com
-                            </a>.
+                            </a>
                         </p>
                     </div>
                 </div>

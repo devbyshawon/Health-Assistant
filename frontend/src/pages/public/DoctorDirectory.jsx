@@ -99,7 +99,7 @@ const DoctorDirectory = () => {
     };
 
     return (
-        <DashboardLayout showFooter hideSidebar={!user}>
+        <DashboardLayout showFooter={!user} hideSidebar={!user}>
             <div className='max-w-6xl mx-auto'>
                 <h1 className='text-2xl font-bold text-teal-900 mb-6'>Find a Doctor</h1>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
@@ -137,7 +137,7 @@ const DoctorDirectory = () => {
                             type="button"
                             onClick={findNearby}
                             disabled={locationLoading}
-                            className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center gap-2"
+                            className="border border-gray-300 text-teal-700 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center gap-2"
                         >
                             <MapPin className="w-4 h-4" />
                             {locationLoading ? "Locating..." : "Near Me"}
