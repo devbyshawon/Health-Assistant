@@ -1,5 +1,8 @@
 const DoctorProfile = require('../models/DoctorProfile');
 const User = require('../models/User');
+const Appointment = require('../models/Appointment');
+const HealthLog = require('../models/HealthLog');
+const createNotification = require('../utils/createNotification');
 
 const uploadDocument = async(req, res) => {
     try {
@@ -36,6 +39,14 @@ const uploadDocument = async(req, res) => {
             docsUploaded: true,
             doctorProfile: profile._id
         });
+
+        await Promise.all(admins.map(admin => createNotification({
+            recipientId: admin._id,
+            title: 'New Doctor Verification Request',
+            message: `${doctor.name} has submitted documents for verification.`,
+            type: 'system'
+        })));
+
         return res.status(200).json({ message: 'Documents uploaded successfully' });
     } catch (error) {
         console.error(error);
@@ -163,7 +174,7 @@ const getNearbyDoctors = async(req, res) => {
         }).populate({
             path: 'userId',
             match: { verificationStatus: 'Verified', isBlocked: false, role: 'doctor' },
-            select: 'name email username'
+            select: 'name email username profilePic'
         });
 
         const doctors = profiles.filter(doc => doc.userId);
@@ -174,4 +185,38 @@ const getNearbyDoctors = async(req, res) => {
     }
 };
 
-module.exports = { uploadDocument, getDoctorProfile, updateDoctorProfile, getPublicDoctors, searchDoctors, getNearbyDoctors };
+const getMyPatients = async (req, res) => {
+    try {
+        const patientIds = await Appointment.find({ doctorId: req.user._id }).distinct('patientId');
+        const patients = await User.find({ _id: { $in: patientIds } }).select('name email');
+        return res.status(200).json({ results: patients.length, patients });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getPatientHealthLogs = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+
+        const hasRelationship = await Appointment.findOne({ doctorId: req.user._id, patientId });
+        if (!hasRelationship) {
+            return res.status(403).json({ message: "You do not have access to this patient's records" });
+        }
+
+        const patient = await User.findById(patientId).select('name email age gender contact bloodGroup emergencyContact');
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        const logs = await HealthLog.find({ userId: patientId }).sort({ date: -1 });
+        return res.status(200).json({ success: true, patient, logs });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = { uploadDocument, getDoctorProfile, updateDoctorProfile, getPublicDoctors, 
+    searchDoctors, getNearbyDoctors, getMyPatients, getPatientHealthLogs };

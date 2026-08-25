@@ -46,9 +46,11 @@ const getPrescriptions = async (req, res) => {
 };
 
 const extractPrescriptionText = async (req, res) => {
+    let imagePath = '';
+    let tempFilesToClean = [];
     try {
-        let imagePath = '';
         if (req.file) {
+            tempFilesToClean.push(req.file.path);
             if (req.file.mimetype === 'application/pdf') {
                 const options = {
                     density: 300,
@@ -63,6 +65,7 @@ const extractPrescriptionText = async (req, res) => {
                 const convert = fromPath(req.file.path, options);
                 const result = await convert(1);
                 imagePath = result.path;
+                tempFilesToClean.push(imagePath);
             } else {
                 imagePath = req.file.path;
             }
@@ -74,6 +77,7 @@ const extractPrescriptionText = async (req, res) => {
             const response = await axios.get(url, { responseType: 'arraybuffer' });
             fs.writeFileSync(tempPath, response.data);
             imagePath = tempPath;
+            tempFilesToClean.push(tempPath);
         } else {
             return res.status(400).json({ message: 'No file or URL provided' });
         }
@@ -83,6 +87,10 @@ const extractPrescriptionText = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
+    } finally {
+        tempFilesToClean.forEach(f => {
+            fs.unlink(f, (err) => { if (err) console.error('Failed to clean temp file:', f, err); });
+        });
     }
 };
 

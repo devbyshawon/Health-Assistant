@@ -109,7 +109,7 @@ const verifyOtp = async (req, res) => {
 
         await user.save();
         if (role === 'user') {
-            await sendEmail({
+            sendEmail({
                 to: user.email,
                 subject: 'Registration Successful - Health Assistant',
                 text: `Welcome ${user.name}! Your registration is complete.`,
@@ -122,9 +122,9 @@ const verifyOtp = async (req, res) => {
 
                     <p>Thank you for choosing Health Assistant!</p>
                 `
-            });
+            }).catch(error => console.error('Failed to send welcome email:', error));
         } else if (role === 'doctor') {
-            await sendEmail({
+            sendEmail({
                 to: user.email,
                 subject: 'Registration Pending Approval - Health Assistant',
                 text: `Welcome ${user.name}! Your account is pending admin verification.`,
@@ -139,12 +139,12 @@ const verifyOtp = async (req, res) => {
 
                     <p>Thank you for your patience.</p>
                 `
-            });
+            }).catch(error => console.error('Failed to send pending email:', error));;
         }
         return res.status(200).json({
             message: role === 'user' 
-                ? 'Email verified successfully. You can now login.' 
-                : 'Email verified. Pending admin verification.',
+            ? 'Email verified successfully. You can now login.' 
+            : 'Email verified. Pending admin verification.',
             redirect: '/login'
         });
     } catch (error) {
@@ -218,7 +218,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const userData = { id: user._id, name: user.name, email: user.email, role: user.role };
+        const userData = { id: user._id, name: user.name, email: user.email, role: user.role, profilePic: user.profilePic };
 
         if (user.isTwoFAEnabled) {
             const otp = generateOTP();
@@ -296,7 +296,7 @@ const verify2Fa = async (req, res) => {
         return res.status(200).json({ 
             message: '2FA verified successfully', 
             token, 
-            user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, profilePic: user.profilePic } 
         });
     } catch (error) {
         console.error(error);

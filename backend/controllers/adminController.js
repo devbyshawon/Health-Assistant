@@ -37,6 +37,7 @@ const verifyDoctor = async(req, res) => {
             doctor.docsUploaded = false;
             doctorProfile.isDoctorVerified = false;
             doctorProfile.credentials.status = 'Rejected';
+            doctorProfile.credentials.feedback = feedback || '';
             doctorProfile.documents.forEach(doc => (doc.status = 'Rejected'));
         }
 
@@ -47,31 +48,31 @@ const verifyDoctor = async(req, res) => {
             req.user._id,
             { doctorId: doctor._id, email: doctor.email }
         );
+
+        await createNotification({
+            recipientId: doctor._id,
+            title: action === 'approve' ? 'Verification Approved' : 'Verification Rejected',
+            message: action === 'approve'
+                ? 'Congratulations! Your doctor account has been verified. You can now access all features.'
+                : `Your verification was rejected.${feedback ? ` Reason: ${feedback}` : ''}`,
+            type: 'system'
+        });
+
         await sendEmail({
             to: doctor.email,
             subject: action === 'approve'
                 ? 'Doctor Verification Approved - Health Assistant'
                 : 'Doctor Verification Rejected - Health Assistant',
             text: action === 'approve'
-                ? `Congratulations ${doctor.name}! Your doctor account has been approved. You can now log in and access the Health Assistant platform.`
-                : `Hello ${doctor.name}, we're sorry to inform you that your doctor verification request has been rejected.`,
+                ? `Congratulations ${doctor.name}! ...`
+                : `Hello ${doctor.name}, we're sorry to inform you that your doctor verification request has been rejected.${feedback ? ` Reason: ${feedback}` : ''}`,
             html: action === 'approve'
-                ? `
-                    <h3>Hello Dr. ${doctor.name},</h3>
-
-                    <p>Congratulations! Your doctor account has been successfully verified and approved by our administrator.</p>
-
-                    <p>You can now log in to your Health Assistant account and start using all the doctor features available on the platform.</p>
-
-                    <p>Thank you for joining Health Assistant!</p>
-                `
+                ? `...`
                 : `
                     <h3>Hello Dr. ${doctor.name},</h3>
-
                     <p>We're sorry to inform you that your doctor verification request has not been approved at this time.</p>
-
+                    ${feedback ? `<p><strong>Reason:</strong> ${feedback}</p>` : ''}
                     <p>If you believe this was a mistake or need further clarification, please contact our support team.</p>
-
                     <p>Thank you for your interest in joining Health Assistant.</p>
                 `
         });
@@ -117,7 +118,7 @@ const getAllDoctors = async (req, res) => {
 
 const getPendingDoctors = async (req, res) => {
     try {
-        const query = { role: 'doctor', verificationStatus: 'Pending' };
+        const query = { role: 'doctor', verificationStatus: 'Pending', docsUploaded: true };
         const doctors = await User.find(query)
             .select('-password -otp -twoFAToken -twoFATokenExpires')
             .populate('doctorProfile');
@@ -192,9 +193,48 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const blockDoctor = async (req, res) => {
+    try {
+        const doctorId = req.params.id;
+        const doctor = await User.findById(doctorId);
+        if (!doctor || doctor.role !== 'doctor') {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+        doctor.isBlocked = true;
+        await doctor.save();
+        await logAction('Doctor Blocked', req.user._id, { doctorId: doctor._id, email: doctor.email });
+        return res.status(200).json({ message: 'Doctor blocked successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const unblockDoctor = async (req, res) => {
+    try {
+        const doctorId = req.params.id;
+        const doctor = await User.findById(doctorId);
+        if (!doctor || doctor.role !== 'doctor') {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+        doctor.isBlocked = false;
+        await doctor.save();
+        await logAction('Doctor Unblocked', req.user._id, { doctorId: doctor._id, email: doctor.email });
+        return res.status(200).json({ message: 'Doctor unblocked successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const getAuditLogs = async (req, res) => {
     try {
-        const logs = await AuditLog.find().populate('performedBy', 'email role').sort({ createdAt: -1 });
+        const { action } = req.query;
+        const query = {};
+        if (action) {
+            query.action = action;
+        }
+        const logs = await AuditLog.find(query).populate('performedBy', 'name email role').sort({ createdAt: -1 });
         return res.status(200).json({ success: true, data: logs });
     } catch (error) {
         console.error(error);
@@ -257,6 +297,32 @@ const addHospital = async (req, res) => {
     }
 };
 
+const getAllHospitals = async (req, res) => {
+    try {
+        const hospitals = await Hospital.find({ isActive: true }).sort({ name: 1 });
+        return res.status(200).json({ results: hospitals.length, hospitals });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const deactivateHospital = async (req, res) => {
+    try {
+        const hospital = await Hospital.findById(req.params.id);
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found' });
+        }
+        hospital.isActive = false;
+        await hospital.save();
+        await logAction('Hospital Deactivated', req.user._id, { hospitalId: hospital._id, name: hospital.name });
+        return res.status(200).json({ message: 'Hospital deactivated' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const sendNotification = async (req, res) => {
     try {
         const { userId, title, message, type } = req.body;
@@ -294,6 +360,49 @@ const sendNotification = async (req, res) => {
     }
 };
 
+const sendBulkNotification = async (req, res) => {
+    try {
+        const { target, title, message, type } = req.body;
+        if (!target || !title || !message || !type) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+        if (!['patients', 'doctors', 'all'].includes(target)) {
+            return res.status(400).json({ message: 'Invalid target' });
+        }
+
+        const roleQuery = target === 'patients' ? { role: 'user' }
+            : target === 'doctors' ? { role: 'doctor' }
+            : { role: { $in: ['user', 'doctor'] } };
+
+        const recipients = await User.find(roleQuery).select('_id email name');
+
+        await Promise.all(recipients.map(async (recipient) => {
+            await sendEmail({
+                to: recipient.email,
+                subject: title,
+                text: message,
+                html: `
+                    <h3>Hello ${recipient.name},</h3>
+                    <p>${message}</p>
+                    <p>Thank you,<br>Health Assistant Team</p>
+                `
+            }).catch(error => console.error(`Email failed for ${recipient.email}:`, error));
+
+            await createNotification({
+                recipientId: recipient._id,
+                title,
+                message,
+                type
+            });
+        }));
+
+        return res.status(200).json({ success: true, message: `Notification sent to ${recipients.length} recipient(s)` });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const getPublicStats = async (req, res) => {
     try {
         const doctorCount = await User.countDocuments({ role: 'doctor', verificationStatus: 'Verified' });
@@ -320,5 +429,6 @@ const getPublicStats = async (req, res) => {
     }
 };
 
-module.exports = { verifyDoctor, getAllUsers, getAllDoctors, getPendingDoctors, blockUser, unblockUser, 
-    deleteUser, getAuditLogs, getSystemSettings, updateSystemSettings, addHospital, sendNotification, getPublicStats };
+module.exports = { verifyDoctor, getAllUsers, getAllDoctors, getPendingDoctors, blockUser, unblockUser, deleteUser, blockDoctor, unblockDoctor,
+    getAuditLogs, getSystemSettings, updateSystemSettings, addHospital, getAllHospitals, deactivateHospital, 
+    sendNotification, sendBulkNotification, getPublicStats };

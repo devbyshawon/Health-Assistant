@@ -13,7 +13,7 @@ const toggleTwoFA = async (req, res) => {
             user.twoFAToken = null;
             user.twoFATokenExpires = null;
             await user.save();
-            return res.status(200).json({ message: '2FA disabled successfully' });
+            return res.status(200).json({ message: '2FA disabled successfully', otpSent: false, enabled: false });
         }
 
         if (!user.isTwoFAEnabled) {
@@ -38,7 +38,7 @@ const toggleTwoFA = async (req, res) => {
                     <p>If you didn't initiate this request, please ignore this email.</p>
                 `
             });
-            res.status(200).json({ message: 'OTP sent to your email. Verify to complete 2FA setup' });
+            res.status(200).json({ message: 'OTP sent to your email. Verify to complete 2FA setup', otpSent: true });
         }
     } catch (error) {
         console.error(error);
@@ -61,8 +61,8 @@ const getUserProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { name, username, age, gender, contact, birthday, address, bloodGroup, intro } = req.body;
-        const allowedFields = ['name', 'username', 'age', 'gender', 'contact', 'birthday', 'address', 'bloodGroup', 'intro'];
+        const { name, username, age, gender, contact, birthday, address, bloodGroup, intro, emergencyContact } = req.body;
+        const allowedFields = ['name', 'username', 'age', 'gender', 'contact', 'birthday', 'address', 'bloodGroup', 'intro', 'emergencyContact'];
         const updates = {};
         allowedFields.forEach(field => {
             if (req.body[field] !== undefined) {

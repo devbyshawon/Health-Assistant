@@ -110,4 +110,14 @@ const getVisitPrep = async (req, res) => {
     }
 };
 
-module.exports = { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep };
+const getAIHistory = async (req, res) => {
+    try {
+        const logs = await AIInteractionLog.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        return res.status(200).json({ success: true, data: logs });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep, getAIHistory };

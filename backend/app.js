@@ -20,5 +20,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/public', publicRouter);
+app.use('/uploads', express.static('uploads'));
 
 module.exports = app;
