@@ -6,7 +6,12 @@ const { protect, restrictTo } = require('../middlewares/authMiddleware');
 const { getPendingDoctors, verifyDoctor, getAllUsers, getAllDoctors,
     blockUser, unblockUser, deleteUser, getAuditLogs,
     getSystemSettings, updateSystemSettings, addHospital, 
-    sendNotification } = require('../controllers/adminController');
+    sendNotification, 
+    sendBulkNotification,
+    getAllHospitals,
+    deactivateHospital,
+    blockDoctor,
+    unblockDoctor} = require('../controllers/adminController');
 
 // All routes below require admin
 router.use(protect, restrictTo('admin'));
@@ -15,6 +20,8 @@ router.use(protect, restrictTo('admin'));
 router.get('/doctors/pending', getPendingDoctors);
 router.patch('/doctors/:id/verify', verifyDoctor);
 router.get('/doctors', getAllDoctors);
+router.patch('/doctors/:id/block', blockDoctor);
+router.patch('/doctors/:id/unblock', unblockDoctor);
 
 // User management
 router.get('/users', getAllUsers);
@@ -30,9 +37,12 @@ router.get('/settings', getSystemSettings);
 router.patch('/settings', updateSystemSettings);
 
 // Hospital
+router.get('/hospitals', getAllHospitals);
 router.post('/hospital', addHospital);
+router.patch('/hospitals/:id/deactivate', deactivateHospital);
 
 // Notifications
 router.post('/notify', sendNotification);
+router.post('/notify/bulk', sendBulkNotification);
 
 module.exports = router;

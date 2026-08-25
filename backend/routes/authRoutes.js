@@ -15,7 +15,7 @@ const { createHealthLog, getHealthLogs, updateHealthLog, deleteHealthLog } = req
 const { createReminder, getReminders, updateReminder, deleteReminder } = require('../controllers/reminderController');
 const { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments } = require('../controllers/appointmentController');
 const { getNotifications, markAsRead } = require('../controllers/notificationController');
-const { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep } = require('../controllers/aiController');
+const { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep, getAIHistory } = require('../controllers/aiController');
 const { uploadPrescriptions, getPrescriptions, extractPrescriptionText } = require('../controllers/prescriptionController');
 
 // Auth routes (with rate limiters)
@@ -34,7 +34,6 @@ router.patch('/update-profile', protect, sanitizeProfileUpdate, validationHandle
 router.post('/upload-profile-pic', protect, uploadProfilePic.single('profilePic'), uploadProfilePicController);
 router.patch('/toggle-2fa', protect, toggleTwoFA);
 router.get('/health-summary', protect, getHealthSummary);
-router.get('/me', protect, (req, res) => {res.status(200).json({ user: req.user });}); //If no need in frontend then must delete it later in final bug fixing
 
 // Health Logs
 router.post('/healthlogs', protect, createHealthLog);
@@ -68,5 +67,6 @@ router.post('/ai/diagnose', protect, aiLimiter, diagnoseSymptoms);
 router.post('/ai/chat', protect, aiLimiter, chatSymptoms);
 router.post('/ai/simplify', protect, aiLimiter, simplifyMedicalTerm);
 router.get('/ai/visit-prep/:condition', protect, aiLimiter, getVisitPrep);
+router.get('/ai/history', protect, getAIHistory);
 
 module.exports = router;
