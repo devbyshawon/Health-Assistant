@@ -11,6 +11,7 @@ import AboutPage from './pages/public/AboutPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/public/TermsOfServicePage';
 import DoctorDirectory from "./pages/public/DoctorDirectory";
+import HospitalDirectory from "./pages/public/HospitalDirectory";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 
@@ -62,6 +63,7 @@ const AppRoutes = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                 <Route path="/doctors" element={<DoctorDirectory />} />
+                <Route path="/hospitals" element={<HospitalDirectory />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/unauthorized" element={ 

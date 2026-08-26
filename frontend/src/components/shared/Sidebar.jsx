@@ -10,6 +10,7 @@ const Sidebar = () => {
   const guestLinks = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/doctors", icon: Stethoscope, label: "Find Doctors" },
+  { to: "/hospitals", icon: Hospital, label: "Hospitals" },
   { to: "/login", icon: LogIn, label: "Login" },
   { to: "/register", icon: UserPlus, label: "Register" },
 ];
@@ -17,6 +18,7 @@ const Sidebar = () => {
   const patientLinks = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/doctors", icon: Stethoscope, label: "Find Doctors" },
+    { to: "/hospitals", icon: Hospital, label: "Hospitals" },
     { to: "/appointments", icon: Calendar, label: "Appointments" },
     { to: "/healthlogs", icon: Activity, label: "Health Logs" },
     { to: "/reminders", icon: Pill, label: "Reminders" },
@@ -37,6 +39,7 @@ const Sidebar = () => {
         { to: "/doctor/appointments", icon: Calendar, label: "Appointments" },
         { to: "/doctor/patients", icon: Users, label: "Patients" },
         { to: "/doctor/profile", icon: UserCog, label: "My Profile" },
+        { to: "/hospitals", icon: Hospital, label: "Hospitals" },
         { to: "/notifications", icon: Bell, label: "Notifications" },
         { to: "/settings", icon: Settings, label: "Settings" },
     ];

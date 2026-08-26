@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 
 const { getPublicDoctors, searchDoctors, getNearbyDoctors } = require("../controllers/doctorController");
+const { getPublicHospitals, searchHospitals, getNearbyHospitals } = require("../controllers/hospitalController");
 const { getPublicStats } = require('../controllers/adminController');
 
 // Public routes
 router.get('/doctors', getPublicDoctors);
 router.get('/doctors/search', searchDoctors);
 router.get('/doctors/nearby', getNearbyDoctors);
+
+router.get('/hospitals', getPublicHospitals);
+router.get('/hospitals/search', searchHospitals);
+router.get('/hospitals/nearby', getNearbyHospitals);
+
 router.get('/stats', getPublicStats);
 
 module.exports = router;
