@@ -153,6 +153,33 @@ const verifyOtp = async (req, res) => {
     }
 };
 
+const checkOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ message: 'Email and OTP are required' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (user.isVerified) {
+            return res.status(400).json({ message: 'User already verified' });
+        }
+        if (user.otpExpiresAt < new Date()) {
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+        if (String(user.otp).trim() !== String(otp).trim()) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+        return res.status(200).json({ message: 'OTP verified' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const resendOtp = async (req, res) => {
     try {
         const { email } = req.body;
@@ -364,4 +391,4 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-module.exports = { register, verifyOtp, resendOtp, login, verify2Fa, logout, changePassword, deleteAccount };
+module.exports = { register, verifyOtp, checkOtp, resendOtp, login, verify2Fa, logout, changePassword, deleteAccount };

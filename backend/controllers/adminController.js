@@ -11,7 +11,7 @@ const logAction = require('../utils/auditLog');
 const verifyDoctor = async(req, res) => {
     try {
         const { id } = req.params;
-        const { action } = req.body;
+        const { action, feedback } = req.body;
         if (!['approve', 'reject'].includes(action)) {
             return res.status(400).json({ message: 'Invalid action' });
         }
@@ -58,18 +58,25 @@ const verifyDoctor = async(req, res) => {
             type: 'system'
         });
 
+        const displayName = doctor.name.replace(/^\s*dr\.?\s+/i, '').trim();
+
         await sendEmail({
             to: doctor.email,
             subject: action === 'approve'
                 ? 'Doctor Verification Approved - Health Assistant'
                 : 'Doctor Verification Rejected - Health Assistant',
             text: action === 'approve'
-                ? `Congratulations ${doctor.name}! ...`
-                : `Hello ${doctor.name}, we're sorry to inform you that your doctor verification request has been rejected.${feedback ? ` Reason: ${feedback}` : ''}`,
+                ? `Congratulations Dr. ${displayName}! Your doctor account on Health Assistant has been verified. You can now log in and access all doctor features, including managing your profile, availability and appointments.`
+                : `Hello Dr. ${displayName}, we're sorry to inform you that your doctor verification request has been rejected.${feedback ? ` Reason: ${feedback}` : ''}`,
             html: action === 'approve'
-                ? `...`
+                ? `
+                    <h3>Congratulations, Dr. ${displayName}!</h3>
+                    <p>Your doctor account on <strong>Health Assistant</strong> has been verified.</p>
+                    <p>You can now log in and access all doctor features, including managing your profile, setting your availability and handling appointments.</p>
+                    <p>Thank you for joining Health Assistant.</p>
+                `
                 : `
-                    <h3>Hello Dr. ${doctor.name},</h3>
+                    <h3>Hello Dr. ${displayName},</h3>
                     <p>We're sorry to inform you that your doctor verification request has not been approved at this time.</p>
                     ${feedback ? `<p><strong>Reason:</strong> ${feedback}</p>` : ''}
                     <p>If you believe this was a mistake or need further clarification, please contact our support team.</p>

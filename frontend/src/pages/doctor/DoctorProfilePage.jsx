@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MapPin } from 'lucide-react';
 import api from '../../services/api';
 import DashboardLayout from '../../components/shared/DashboardLayout';
 
@@ -15,6 +16,28 @@ const DoctorProfile = () => {
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState('');
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [geoStatus, setGeoStatus] = useState('');
+
+    const useCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            setGeoStatus('Geolocation is not supported by your browser.');
+            return;
+        }
+        setGeoStatus('Detecting your location...');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setForm(prev => ({
+                    ...prev,
+                    lat: position.coords.latitude.toFixed(6),
+                    lng: position.coords.longitude.toFixed(6)
+                }));
+                setGeoStatus('Location detected. You can adjust it below if needed.');
+            },
+            () => {
+                setGeoStatus('Unable to get your location. Please allow location access or enter it manually.');
+            }
+        );
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -140,22 +163,28 @@ const DoctorProfile = () => {
                             </div>
                         </div>
 
-                        <div className='grid grid-cols-3 gap-4'>
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Fees (৳)</label>
-                                <input type='number' value={form.fees} onChange={(e) => setForm(prev => ({ ...prev, fees: e.target.value }))}
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Fees (৳)</label>
+                            <input type='number' value={form.fees} onChange={(e) => setForm(prev => ({ ...prev, fees: e.target.value }))}
+                                className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500' />
+                        </div>
+
+                        <div>
+                            <div className='flex items-center justify-between mb-1'>
+                                <label className='text-sm font-medium text-gray-700'>Clinic Location</label>
+                                <button type='button' onClick={useCurrentLocation}
+                                    className='text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer flex items-center gap-1'>
+                                    <MapPin className='w-4 h-4' /> Use my current location
+                                </button>
+                            </div>
+                            <div className='grid grid-cols-2 gap-4'>
+                                <input value={form.lat} onChange={(e) => setForm(prev => ({ ...prev, lat: e.target.value }))} placeholder='Latitude'
+                                    className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500' />
+                                <input value={form.lng} onChange={(e) => setForm(prev => ({ ...prev, lng: e.target.value }))} placeholder='Longitude'
                                     className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500' />
                             </div>
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Latitude</label>
-                                <input value={form.lat} onChange={(e) => setForm(prev => ({ ...prev, lat: e.target.value }))}
-                                    className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500' />
-                            </div>
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Longitude</label>
-                                <input value={form.lng} onChange={(e) => setForm(prev => ({ ...prev, lng: e.target.value }))}
-                                    className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500' />
-                            </div>
+                            {geoStatus && <p className='text-xs text-gray-500 mt-1'>{geoStatus}</p>}
+                            <p className='text-xs text-gray-400 mt-1'>Patients use this to find you and get directions to your clinic. Click the button to fill it in automatically.</p>
                         </div>
 
                         <div>

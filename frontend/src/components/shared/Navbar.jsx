@@ -3,9 +3,15 @@ import { useAuth } from '../../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
-    const { user, logout, isAdmin, isDoctor, isPatient } = useAuth();
+    const { user, logout, isAdmin, isDoctor, doctorVerified } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const homePath = isAdmin
+        ? '/admin'
+        : isDoctor
+            ? (doctorVerified ? '/doctor/dashboard' : '/doctor/upload-docs')
+            : '/dashboard';
 
     const handleLogout = () => {
         logout();
@@ -20,6 +26,7 @@ const Navbar = () => {
         location.pathname.startsWith('/appointments') ||
         location.pathname.startsWith('/ai') ||
         location.pathname.startsWith('/doctors') ||
+        location.pathname.startsWith('/hospitals') ||
         location.pathname.startsWith('/healthlogs') ||
         location.pathname.startsWith('/reminders') ||
         location.pathname.startsWith('/prescriptions') ||
@@ -30,7 +37,7 @@ const Navbar = () => {
         return (
             <nav className='bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center'>
                 <div
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate(homePath)}
                     className='text-lg font-bold text-teal-600 cursor-pointer flex items-center gap-2'
                 >
                     Health Assistant
@@ -77,6 +84,7 @@ const Navbar = () => {
                         <Link to="/" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Home</Link>
                     )}
                     <Link to="/doctors" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Doctors</Link>
+                    <Link to="/hospitals" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Hospitals</Link>
                     <Link to="/login" className='text-sm font-semibold text-teal-900 hover:text-teal-600'>Login</Link>
                     <Link
                         to="/register"

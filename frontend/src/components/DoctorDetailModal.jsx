@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Modal from './shared/Modal';
 import { Briefcase, Star, Phone, Clock } from 'lucide-react';
+import formatDoctorName from '../utils/formatName';
 
 const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
     const navigate = useNavigate();
@@ -34,7 +35,7 @@ const DoctorDetailModal = ({ doctor, isOpen, onClose }) => {
         <Modal 
             isOpen={isOpen} 
             onClose={onClose} 
-            title={`Dr. ${doctor.name || doctor.userId?.name}`}
+            title={formatDoctorName(doctor.name || doctor.userId?.name)}
             titleClassName='text-teal-900'
         >
             <div className='flex items-center gap-4 mb-4'>

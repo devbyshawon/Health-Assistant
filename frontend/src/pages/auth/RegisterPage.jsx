@@ -59,10 +59,18 @@ const RegisterPage = () => {
         e.preventDefault();
         if (otp.length !== 6) {
             setError('OTP must be 6 digits');
-            return; 
-        } 
+            return;
+        }
         setError('');
-        setStep(3);
+        setLoading(true);
+        try {
+            await api.post('/auth/check-otp', { email, otp });
+            setStep(3);
+        } catch (error) {
+            setError(error.response?.data?.message || 'Invalid OTP');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const resendOtp = async () => {
@@ -90,7 +98,7 @@ const RegisterPage = () => {
             await api.post('/auth/verify-otp', { email, otp, role });
             setRole('');
             setResendMessage('Registration complete! Redirecting to login...');
-            setTimeout(() => navigate('/login'), 2000);
+            setTimeout(() => navigate('/login'), 600);
         } catch (error) {
             setError(error.response?.data?.message || 'OTP was wrong');
             setStep(2);

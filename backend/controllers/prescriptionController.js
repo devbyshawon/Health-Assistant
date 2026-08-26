@@ -98,7 +98,7 @@ const deletePrescription = async (req, res) => {
     try {
         const prescription = await Prescription.findOneAndDelete({
             _id: req.params.id,
-            userId: req.user._id
+            patientId: req.user._id
         });
 
         if (!prescription) {
@@ -106,7 +106,7 @@ const deletePrescription = async (req, res) => {
         }
 
         try {
-            await fs.unlink(path.join(process.cwd(), prescription.fileUrl));
+            await fs.promises.unlink(path.join(process.cwd(), prescription.fileUrl));
         } catch (fileError) {
             console.error('File already gone or unreadable:', fileError.message);
         }

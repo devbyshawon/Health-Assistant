@@ -8,10 +8,10 @@ const uploadDocument = async(req, res) => {
     try {
         const userId = req.user._id;
         const files = [];
-        if (req.files.idCard) {
+        if (req.files?.idCard) {
             files.push(req.files.idCard[0]);
         }
-        if (req.files.certificate) {
+        if (req.files?.certificate) {
             files.push(req.files.certificate[0]);
         }
         if (files.length === 0) {
@@ -25,6 +25,15 @@ const uploadDocument = async(req, res) => {
                 clinicLocation: { type: 'Point', coordinates: [0, 0] }
             });
         }
+        if (profile.credentials?.status === 'Verified') {
+            return res.status(400).json({ message: 'Your account is already verified.' });
+        }
+
+        const { specialty } = req.body;
+        if (specialty) {
+            profile.specialty = specialty;
+        }
+
         files.forEach(file => {
             profile.documents.push({
                 filename: file.filename,
@@ -33,6 +42,9 @@ const uploadDocument = async(req, res) => {
             });
         });
 
+        profile.credentials.status = 'Pending';
+        profile.credentials.feedback = '';
+
         await profile.save();
         await User.findByIdAndUpdate(userId, {
             verificationStatus: 'Pending',
@@ -40,12 +52,17 @@ const uploadDocument = async(req, res) => {
             doctorProfile: profile._id
         });
 
-        await Promise.all(admins.map(admin => createNotification({
-            recipientId: admin._id,
-            title: 'New Doctor Verification Request',
-            message: `${doctor.name} has submitted documents for verification.`,
-            type: 'system'
-        })));
+        try {
+            const admins = await User.find({ role: 'admin' }).select('_id');
+            await Promise.all(admins.map(admin => createNotification({
+                recipientId: admin._id,
+                title: 'New Doctor Verification Request',
+                message: `${req.user.name} has submitted documents for verification.`,
+                type: 'system'
+            })));
+        } catch (notifyErr) {
+            console.error('Failed to notify admins of verification request:', notifyErr);
+        }
 
         return res.status(200).json({ message: 'Documents uploaded successfully' });
     } catch (error) {

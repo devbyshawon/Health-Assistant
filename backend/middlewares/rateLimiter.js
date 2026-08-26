@@ -17,9 +17,17 @@ const registerLimiter = rateLimit({
 });
 
 const otpLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, 
+    windowMs: 60 * 60 * 1000,
     max: 5,
     message: { message: 'Too many OTP requests. Try again in an hour.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const otpVerifyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    message: { message: 'Too many verification attempts. Try again in a few minutes.' },
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -40,4 +48,4 @@ const aiLimiter = rateLimit({
     legacyHeaders: false
 });
 
-module.exports = { loginLimiter, registerLimiter, otpLimiter, verify2FALimiter, aiLimiter };
+module.exports = { loginLimiter, registerLimiter, otpLimiter, otpVerifyLimiter, verify2FALimiter, aiLimiter };

@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const { protect, restrictTo } = require('../middlewares/authMiddleware');
-const { registerLimiter, loginLimiter, otpLimiter, verify2FALimiter, aiLimiter } = require('../middlewares/rateLimiter');
+const { registerLimiter, loginLimiter, otpLimiter, otpVerifyLimiter, verify2FALimiter, aiLimiter } = require('../middlewares/rateLimiter');
 const { uploadProfilePic, uploadPrescription } = require('../middlewares/multer');
 const { sanitizeProfileUpdate } = require('../middlewares/sanitizeMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
 
-const { register, verifyOtp, resendOtp, login, verify2Fa, 
+const { register, verifyOtp, checkOtp, resendOtp, login, verify2Fa,
     logout, changePassword, deleteAccount } = require('../controllers/authController');
 const { toggleTwoFA, getUserProfile, updateProfile, 
     uploadProfilePicController, getHealthSummary } = require('../controllers/userController');
@@ -21,6 +21,7 @@ const { uploadPrescriptions, getPrescriptions, extractPrescriptionText, deletePr
 // Auth routes (with rate limiters)
 router.post('/register', registerLimiter, register);
 router.post('/verify-otp', otpLimiter, verifyOtp);
+router.post('/check-otp', otpVerifyLimiter, checkOtp);
 router.post('/resend-otp', otpLimiter, resendOtp);
 router.post('/login', loginLimiter, login);
 router.post('/verify-2fa', protect, verify2FALimiter, verify2Fa);
