@@ -82,7 +82,7 @@ const simplifyMedicalTerm = async (req, res) => {
 
 const getVisitPrep = async (req, res) => {
     try {
-        const { condition } = req.params;
+        const { condition } = req.body;
         if (!condition) {
             return res.status(400).json({ message: 'Condition is missing' });
         }

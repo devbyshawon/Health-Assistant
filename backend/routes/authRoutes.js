@@ -16,7 +16,7 @@ const { createReminder, getReminders, updateReminder, deleteReminder } = require
 const { bookAppointment, rescheduleAppointment, cancelAppointment, getMyAppointments } = require('../controllers/appointmentController');
 const { getNotifications, markAsRead } = require('../controllers/notificationController');
 const { diagnoseSymptoms, chatSymptoms, simplifyMedicalTerm, getVisitPrep, getAIHistory } = require('../controllers/aiController');
-const { uploadPrescriptions, getPrescriptions, extractPrescriptionText } = require('../controllers/prescriptionController');
+const { uploadPrescriptions, getPrescriptions, extractPrescriptionText, deletePrescription } = require('../controllers/prescriptionController');
 
 // Auth routes (with rate limiters)
 router.post('/register', registerLimiter, register);
@@ -61,12 +61,13 @@ router.patch('/notifications/:id/read', protect, markAsRead);
 router.post('/prescriptions', protect, uploadPrescription.single('prescription'), uploadPrescriptions);
 router.get('/prescriptions', protect, getPrescriptions);
 router.post('/prescriptions/ocr', protect, uploadPrescription.single('prescription'), extractPrescriptionText);
+router.delete('/prescriptions/:id', protect, deletePrescription);
 
 // AI features (with rate limiter)
 router.post('/ai/diagnose', protect, aiLimiter, diagnoseSymptoms);
 router.post('/ai/chat', protect, aiLimiter, chatSymptoms);
 router.post('/ai/simplify', protect, aiLimiter, simplifyMedicalTerm);
-router.get('/ai/visit-prep/:condition', protect, aiLimiter, getVisitPrep);
+router.post('/ai/visit-prep', protect, getVisitPrep);
 router.get('/ai/history', protect, getAIHistory);
 
 module.exports = router;

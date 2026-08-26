@@ -2,26 +2,30 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import DashboardLayout from '../../components/shared/DashboardLayout';
-import { Plus, Calendar } from 'lucide-react';
-import AppointmentCard from '../../components/AppointmentCard';
 import Modal from '../../components/shared/Modal';
-
+import AppointmentCard from '../../components/AppointmentCard';
+import { Plus, Calendar } from 'lucide-react';
 
 const AppointmentPage = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageError, setPageError] = useState('');
 
+    const [actionLoading, setActionLoading] = useState(false);
+    const [actionError, setActionError] = useState('');
+
     const [reschedulingId, setReschedulingId] = useState(null);
     const [rescheduleError, setRescheduleError] = useState('');
     const [newDate, setNewDate] = useState('');
+
+    const [confirmCancel, setConfirmCancel] = useState(null);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const response = await api.get('/auth/appointments/my'); 
+                const response = await api.get('/auth/appointments/my');
                 setAppointments(response.data);
             } catch (error) {
                 setPageError(error.response?.data?.message || 'Failed to load appointments');
@@ -33,36 +37,45 @@ const AppointmentPage = () => {
     }, []);
 
     const handleCancel = async (id) => {
-        if (!window.confirm('Cancel this appointment?')) { 
-            return;
-        }
+        setActionLoading(true);
+        setActionError('');
         try {
             await api.patch(`/auth/appointments/${id}/cancel`);
             setAppointments(prev => prev.map(a => a._id === id ? { ...a, status: 'Cancelled' } : a));
+            setConfirmCancel(null);
         } catch (error) {
-            setPageError(error.response?.data?.message || 'Failed to cancel appointment');
+            setActionError(error.response?.data?.message || 'Failed to cancel appointment');
+            setConfirmCancel(null);
+        } finally {
+            setActionLoading(false);
         }
     };
 
     const handleReschedule = async (id) => {
+        if (!newDate) {
+            setRescheduleError('Please select a new date and time');
+            return;
+        }
+        setActionLoading(true);
+        setRescheduleError('');
         try {
-            if (!newDate) {
-                setRescheduleError('Please select a new date and time');
-                return;
-            }
-            setRescheduleError('');
             const response = await api.patch(`/auth/appointments/${id}/reschedule`, { date: newDate });
-            setAppointments(prev => prev.map(a => a._id === id ? { ...a, date: response.data.date, status: response.data.status } : a));
+            setAppointments(prev => prev.map(a => a._id === id
+                ? { ...a, date: response.data.date, status: response.data.status }
+                : a
+            ));
             setReschedulingId(null);
             setNewDate('');
         } catch (error) {
             setRescheduleError(error.response?.data?.message || 'Failed to reschedule appointment');
+        } finally {
+            setActionLoading(false);
         }
     };
 
     return (
         <DashboardLayout>
-            <div className='max-w-5xl mx-auto'>
+            <div className='max-w-6xl mx-auto'>
                 <div className='flex justify-between items-center mb-6'>
                     <div>
                         <h1 className='text-2xl font-bold text-teal-900'>My Appointments</h1>
@@ -71,7 +84,7 @@ const AppointmentPage = () => {
 
                     <button
                         onClick={() => navigate('/appointments/book')}
-                        className='bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2'
+                        className='bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2 cursor-pointer'
                     >
                         <Plus className='w-4 h-4' />
                         Book Appointment
@@ -82,19 +95,23 @@ const AppointmentPage = () => {
                     <p className='text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg mb-4'>{pageError}</p>
                 )}
 
+                {actionError && (
+                    <p className='text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg mb-4'>{actionError}</p>
+                )}
+
                 {loading ? (
                     <p className='text-gray-400 text-center py-12'>Loading appointments...</p>
                 ) : appointments.length === 0 ? (
                     <div className='text-center py-16'>
                         <Calendar className='w-12 h-12 text-gray-300 mx-auto mb-3' />
-                        <p className='text-teal-900 font-medium'>No appointments yet</p>
+                        <p className='text-gray-900 font-medium'>No appointments yet</p>
                         <p className='text-sm text-gray-400 mt-1'>Book an appointment with a doctor to get started</p>
 
                         <button
                             onClick={() => navigate('/appointments/book')}
-                            className='mt-4 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700'
+                            className='mt-4 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors cursor-pointer'
                         >
-                            + New Appointment
+                            Book Appointment
                         </button>
                     </div>
                 ) : (
@@ -103,39 +120,41 @@ const AppointmentPage = () => {
                             <AppointmentCard
                                 key={appointment._id}
                                 appointment={appointment}
-                                viewerRole="user"
+                                viewerRole='user'
                                 onReschedule={(a) => {
                                     setReschedulingId(a._id);
                                     setNewDate(a.date ? new Date(a.date).toISOString().slice(0, 16) : '');
                                 }}
-                                onCancel={handleCancel}
+                                onCancel={(id) => setConfirmCancel(appointments.find(a => a._id === id))}
                             />
                         ))}
                     </div>
                 )}
 
-                <Modal 
+                <Modal
                     isOpen={!!reschedulingId}
-                    onClose={() => { 
+                    onClose={() => {
                         setReschedulingId(null);
                         setNewDate('');
                         setRescheduleError('');
                     }}
                     title='Reschedule Appointment'
+                    titleClassName='text-teal-900'
                 >
                     <form onSubmit={(e) => {
-                        e.preventDefault(); 
-                        handleReschedule(reschedulingId); 
+                        e.preventDefault();
+                        handleReschedule(reschedulingId);
                     }}>
                         {rescheduleError && (
                             <p className='text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg mb-4'>{rescheduleError}</p>
                         )}
 
                         <div className='mb-4'>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>New Date & Time</label>
+                            <label className='block text-sm font-medium text-teal-900 mb-1'>New Date & Time</label>
                             <input
                                 type='datetime-local'
                                 value={newDate}
+                                min={new Date().toISOString().slice(0, 16)}
                                 onChange={(e) => setNewDate(e.target.value)}
                                 className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500'
                             />
@@ -143,11 +162,45 @@ const AppointmentPage = () => {
 
                         <button
                             type='submit'
-                            className='w-full bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors'
+                            disabled={actionLoading}
+                            className='w-full bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors cursor-pointer'
                         >
-                            Save Changes
-                        </button>                        
+                            {actionLoading ? 'Saving...' : 'Save Changes'}
+                        </button>
                     </form>
+                </Modal>
+
+                <Modal
+                    isOpen={!!confirmCancel}
+                    onClose={() => setConfirmCancel(null)}
+                    title='Cancel Appointment'
+                    titleClassName='text-teal-900'
+                >
+                    {confirmCancel && (
+                        <div>
+                            <p className='text-sm text-gray-600 mb-6'>
+                                Are you sure you want to cancel your appointment with{' '}
+                                <span className='font-medium'>{confirmCancel.doctorId?.name || 'this doctor'}</span>
+                                {confirmCancel.date && ` on ${new Date(confirmCancel.date).toLocaleString()}`}?
+                            </p>
+
+                            <div className='flex gap-3'>
+                                <button
+                                    onClick={() => setConfirmCancel(null)}
+                                    className='flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer'
+                                >
+                                    Keep Appointment
+                                </button>
+                                <button
+                                    onClick={() => handleCancel(confirmCancel._id)}
+                                    disabled={actionLoading}
+                                    className='flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors cursor-pointer'
+                                >
+                                    {actionLoading ? 'Cancelling...' : 'Cancel Appointment'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </Modal>
             </div>
         </DashboardLayout>

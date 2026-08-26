@@ -21,7 +21,7 @@ const HealthSummaryChart = ({ logs }) => {
 
     return (
         <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
-            <h3 className='font-semibold text-gray-900 mb-4'>Weight Trend</h3>
+            <h3 className='font-semibold text-teal-900 mb-4'>Weight Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />

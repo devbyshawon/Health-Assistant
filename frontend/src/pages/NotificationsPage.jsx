@@ -29,6 +29,9 @@ const NotificationsPage = () => {
     const [loading, setLoading] = useState(true);
     const [pageError, setPageError] = useState('');
 
+    const [actionError, setActionError] = useState('');
+    const [markingAll, setMarkingAll] = useState(false);
+
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -50,6 +53,7 @@ const NotificationsPage = () => {
 
     const handleLoadMore = async () => {
         setLoadingMore(true);
+        setActionError('');
         try {
             const nextPage = page + 1;
             const response = await api.get(`/auth/notifications?page=${nextPage}&limit=20`);
@@ -57,34 +61,40 @@ const NotificationsPage = () => {
             setHasMore(response.data.pagination.hasMore);
             setPage(nextPage);
         } catch (error) {
-            setPageError(error.response?.data?.message || 'Failed to load more notifications');
+            setActionError(error.response?.data?.message || 'Failed to load more notifications');
         } finally {
             setLoadingMore(false);
         }
     };
 
     const handleMarkAsRead = async (id) => {
+        setActionError('');
         try {
             const response = await api.patch(`/auth/notifications/${id}/read`);
             setNotifications(prev => prev.map(n => n._id === id ? response.data.data : n));
         } catch (error) {
-            setPageError(error.response?.data?.message || 'Failed to mark as read');
+            setActionError(error.response?.data?.message || 'Failed to mark as read');
         }
     };
 
     const handleMarkAllAsRead = async () => {
-        try {
-            const unread = notifications.filter(n => !n.isRead);
-            const results = await Promise.allSettled(unread.map(n => api.patch(`/auth/notifications/${n._id}/read`)));
-            const succeededIds = unread.filter((_, i) => results[i].status === 'fulfilled').map(n => n._id);
-            setNotifications(prev => prev.map(n => succeededIds.includes(n._id) ? { ...n, isRead: true } : n));
-            const failedCount = results.filter(r => r.status === 'rejected').length;
-            if (failedCount > 0) {
-                setPageError(`${failedCount} notification(s) could not be marked as read`);
-            }
-        } catch (error) {
-            setPageError(error.response?.data?.message || 'Failed to mark all as read');
+        setActionError('');
+        setMarkingAll(true);
+
+        const unread = notifications.filter(n => !n.isRead);
+        const results = await Promise.allSettled(
+            unread.map(n => api.patch(`/auth/notifications/${n._id}/read`))
+        );
+
+        const succeededIds = unread.filter((_, i) => results[i].status === 'fulfilled').map(n => n._id);
+        setNotifications(prev => prev.map(n => succeededIds.includes(n._id) ? { ...n, isRead: true } : n));
+
+        const failedCount = results.length - succeededIds.length;
+        if (failedCount > 0) {
+            setActionError(`${failedCount} notification${failedCount === 1 ? '' : 's'} could not be marked as read`);
         }
+
+        setMarkingAll(false);
     };
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -92,24 +102,29 @@ const NotificationsPage = () => {
     return (
         <DashboardLayout>
             <div className='max-w-6xl mx-auto'>
-
                 <div className='flex justify-between items-center mb-6'>
                     <div>
                         <h1 className='text-2xl font-bold text-teal-900'>Notifications</h1>
                         <p className='text-sm text-gray-500 mt-1'>Stay updated on your appointments, reminders and more</p>
                     </div>
+
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllAsRead}
-                            className='text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer'
+                            disabled={markingAll}
+                            className='text-sm text-teal-600 hover:text-teal-700 font-medium disabled:opacity-50 cursor-pointer'
                         >
-                            Mark all as read
+                            {markingAll ? 'Marking...' : 'Mark all as read'}
                         </button>
                     )}
                 </div>
 
                 {pageError && (
                     <p className='text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg mb-4'>{pageError}</p>
+                )}
+
+                {actionError && (
+                    <p className='text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg mb-4'>{actionError}</p>
                 )}
 
                 {loading ? (
@@ -129,19 +144,25 @@ const NotificationsPage = () => {
                                     !n.isRead ? 'border-teal-200 bg-teal-50/30' : 'border-gray-100'
                                 }`}
                             >
-                                {!n.isRead && <span className='w-2 h-2 bg-teal-600 rounded-full mt-2 shrink-0' />}
-                                <div className={`flex-1 ${!n.isRead ? '' : 'ml-5'}`}>
+                                <span
+                                    className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
+                                        !n.isRead ? 'bg-teal-600' : 'bg-transparent'
+                                    }`}
+                                />
+
+                                <div className='flex-1 min-w-0'>
                                     <div className='flex items-start justify-between gap-3'>
-                                        <div>
+                                        <div className='min-w-0'>
                                             <div className='flex items-center gap-2 mb-1'>
                                                 <p className='text-sm font-medium text-gray-900'>{n.title}</p>
-                                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeColors[n.type] || 'bg-gray-50 text-gray-600'}`}>
+                                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize shrink-0 ${typeColors[n.type] || 'bg-gray-50 text-gray-600'}`}>
                                                     {n.type}
                                                 </span>
                                             </div>
                                             <p className='text-sm text-gray-600'>{n.message}</p>
                                             <p className='text-xs text-gray-400 mt-1'>{formatRelativeTime(n.createdAt)}</p>
                                         </div>
+
                                         {!n.isRead && (
                                             <button
                                                 onClick={() => handleMarkAsRead(n._id)}
@@ -157,10 +178,10 @@ const NotificationsPage = () => {
 
                         {hasMore && (
                             <div className='pt-4'>
-                                <button 
-                                    onClick={handleLoadMore} 
+                                <button
+                                    onClick={handleLoadMore}
                                     disabled={loadingMore}
-                                    className='w-full text-center text-sm text-teal-600 hover:text-teal-700 font-medium py-3 bg-white rounded-xl border border-gray-100 disabled:opacity-50 cursor-pointer shadow-sm hover:bg-gray-50 transition'
+                                    className='w-full text-center text-sm text-teal-600 hover:text-teal-700 font-medium py-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer'
                                 >
                                     {loadingMore ? 'Loading...' : 'Load More'}
                                 </button>
@@ -168,7 +189,6 @@ const NotificationsPage = () => {
                         )}
                     </div>
                 )}
-
             </div>
         </DashboardLayout>
     );

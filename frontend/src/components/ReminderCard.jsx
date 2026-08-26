@@ -11,7 +11,7 @@ const ReminderCard = ({ reminder, onEdit, onDelete, onToggleComplete }) => {
                 <button
                     onClick={() => onToggleComplete(reminder)}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                        reminder.completed ? 'bg-teal-600 border-teal-600' : 'border-gray-300 hover:border-teal-400'
+                        reminder.completed ? 'bg-teal-600 border-teal-600' : 'border-gray-300 hover:border-teal-600'
                     }`}
                     title={reminder.completed ? 'Mark as not taken' : 'Mark as taken'}
                 >
@@ -19,11 +19,11 @@ const ReminderCard = ({ reminder, onEdit, onDelete, onToggleComplete }) => {
                 </button>
 
                 <div className='w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center'>
-                    <Pill className='w-5 h-5 text-green-600' />
+                    <Pill className='w-5 h-5 text-teal-900' />
                 </div>
 
                 <div>
-                    <h4 className={`font-medium text-sm ${isDimmed ? 'text-gray-400' : 'text-gray-900'}`}>
+                    <h4 className={`font-medium text-sm ${isDimmed ? 'text-gray-400' : 'text-teal-900'}`}>
                         {reminder.medicineName}
                     </h4>
                     <p className='text-xs text-gray-500'>{reminder.dosage}</p>

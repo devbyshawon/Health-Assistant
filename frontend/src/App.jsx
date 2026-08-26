@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { AIChatProvider } from "./context/AIChatContext";
 import Navbar from "./components/shared/Navbar";
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import VerifiedDoctorRoute from "./components/shared/VerifiedDoctorRoute";
@@ -20,7 +22,6 @@ import HealthLogs from "./pages/patient/HealthLogsPage";
 import ReminderPage from "./pages/patient/RemindersPage";
 import PrescriptionPage from "./pages/patient/PrescriptionsPage";
 import AISymptomChecker from "./pages/patient/AISymptomCheckerPage";
-import AIChat from "./pages/patient/ConversationalAIChatPage";
 import TermSimplifier from "./pages/patient/MedicalTermSimplifierPage";
 import VisitPrep from "./pages/patient/DoctorVisitPrepPage";
 import AIAssistantHub from "./pages/patient/AIAssistantHub";
@@ -49,11 +50,11 @@ import Settings from "./pages/SettingsPage";
 import Notifications from "./pages/NotificationsPage";
 
 
+const AppRoutes = () => {
+    const { user } = useAuth();
 
-const App = () => {
     return (
-        <>
-            <Navbar />
+        <AIChatProvider key={user?._id || 'guest'}>
             <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
@@ -80,8 +81,7 @@ const App = () => {
                     <Route path="/healthlogs" element={<HealthLogs />} />
                     <Route path="/reminders" element={<ReminderPage />} />                   
                     <Route path="/prescriptions" element={<PrescriptionPage />} />
-                    <Route path="/ai-chat" element={<AIAssistantHub />} />
-                    <Route path="/ai/chat" element={<AIChat />} />
+                    <Route path="/ai" element={<AIAssistantHub />} />
                     <Route path="/ai/symptom-checker" element={<AISymptomChecker />} />
                     <Route path="/ai/term-simplifier" element={<TermSimplifier />} />
                     <Route path="/ai/visit-prep" element={<VisitPrep />} />
@@ -124,6 +124,15 @@ const App = () => {
                 {/* Catch all */}
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>
+        </AIChatProvider>
+    );
+};
+
+const App = () => {
+    return (
+        <>
+            <Navbar />
+            <AppRoutes />
         </>
     );
 };

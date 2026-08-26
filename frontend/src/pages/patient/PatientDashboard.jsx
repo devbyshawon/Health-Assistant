@@ -121,7 +121,7 @@ const PatientDashboard = () => {
                     <QuickActionCard to="/doctors" icon={Stethoscope} title="Find a Doctor" description="Browse verified doctors near you" color="blue" />
                     <QuickActionCard to="/appointments" icon={CalendarPlus} title="Book Appointment" description="Schedule a visit with a doctor" color="green" />
                     <QuickActionCard to="/healthlogs" icon={Activity} title="Log Health Data" description="Record your vitals and symptoms" color="purple" />
-                    <QuickActionCard to="/ai-chat" icon={MessageSquare} title="Check Symptoms with AI" description="Get instant AI-powered health insights" color="blue" />
+                    <QuickActionCard to="/ai" icon={MessageSquare} title="Check Symptoms with AI" description="Get instant AI-powered health insights" color="blue" />
                 </div>
             </div>
         </DashboardLayout>

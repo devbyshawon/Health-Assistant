@@ -21,7 +21,7 @@ const AppointmentCard = ({ appointment, viewerRole, onReschedule, onCancel, onCo
                 </div>
 
                 <div>
-                    <h4 className='font-medium text-gray-900 text-sm'>
+                    <h4 className='font-medium text-teal-900 text-sm'>
                         {otherParty?.name || (viewerRole === 'doctor' ? 'Patient' : 'Doctor')}
                     </h4>
 

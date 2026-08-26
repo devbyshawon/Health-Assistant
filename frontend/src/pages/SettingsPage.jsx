@@ -421,6 +421,7 @@ const Settings = () => {
                     isOpen={showDeleteConfirm} 
                     onClose={() => { setShowDeleteConfirm(false); setDeleteError(''); }} 
                     title='Delete Account'
+                    titleClassName='text-teal-900'
                 >
                     <p className='text-sm text-gray-600 mb-4'>
                         Are you sure you want to delete your account? This action is permanent and cannot be undone.
@@ -431,7 +432,7 @@ const Settings = () => {
                     <div className='flex gap-3'>
                         <button 
                             onClick={() => setShowDeleteConfirm(false)}
-                            className='flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer transition'
+                            className='flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 cursor-pointer transition'
                         >
                             Cancel
                         </button>

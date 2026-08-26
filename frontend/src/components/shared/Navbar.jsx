@@ -18,7 +18,7 @@ const Navbar = () => {
         location.pathname.startsWith('/doctor') ||
         location.pathname.startsWith('/admin') ||
         location.pathname.startsWith('/appointments') ||
-        location.pathname.startsWith('/ai-chat') ||
+        location.pathname.startsWith('/ai') ||
         location.pathname.startsWith('/doctors') ||
         location.pathname.startsWith('/healthlogs') ||
         location.pathname.startsWith('/reminders') ||

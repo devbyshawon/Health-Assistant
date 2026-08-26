@@ -21,7 +21,7 @@ const Sidebar = () => {
     { to: "/healthlogs", icon: Activity, label: "Health Logs" },
     { to: "/reminders", icon: Pill, label: "Reminders" },
     { to: "/prescriptions", icon: FileText, label: "Prescriptions" },
-    { to: "/ai-chat", icon: MessageSquare, label: "AI Assistant" },
+    { to: "/ai", icon: MessageSquare, label: "AI Assistant" },
     { to: "/notifications", icon: Bell, label: "Notifications" },
     { to: "/settings", icon: Settings, label: "Settings" },
   ];

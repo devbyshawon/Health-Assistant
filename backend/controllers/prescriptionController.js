@@ -94,4 +94,27 @@ const extractPrescriptionText = async (req, res) => {
     }
 };
 
-module.exports = { uploadPrescriptions, getPrescriptions, extractPrescriptionText };
+const deletePrescription = async (req, res) => {
+    try {
+        const prescription = await Prescription.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user._id
+        });
+
+        if (!prescription) {
+            return res.status(404).json({ message: 'Prescription not found' });
+        }
+
+        try {
+            await fs.unlink(path.join(process.cwd(), prescription.fileUrl));
+        } catch (fileError) {
+            console.error('File already gone or unreadable:', fileError.message);
+        }
+
+        res.json({ message: 'Prescription deleted' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { uploadPrescriptions, getPrescriptions, extractPrescriptionText, deletePrescription };
